@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+		<LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\R5.DbMigrations\R5.DbMigrations.csproj" />
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MongoDB.Driver" Version="2.10.1" />
+		<PackageReference Include="MongoDB.Driver.GridFS" Version="2.10.1" />
+	</ItemGroup>
+
+</Project>
