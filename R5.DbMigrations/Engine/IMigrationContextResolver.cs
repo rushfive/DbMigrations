@@ -5,7 +5,7 @@ using System.Text;
 
 namespace R5.DbMigrations.Engine
 {
-	public interface IMigrationContextResolver<T>
+	public interface IStageContextResolver<T>
 	{
 		T Get();
 	}

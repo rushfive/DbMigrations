@@ -31,15 +31,11 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		{
 			var version = new DbVersion("2021.3.3", "5.5.5");
 
-			IMigrationContextResolver<MongoMigrationContext> contextResolver
+			IStageContextResolver<MongoMigrationContext> contextResolver
 				= new MongoMigrationContextResolver(_options, _connectionStr);
 
-			var pipelineContext = new MongoTestPipelineContext
-			{
-				MigrationVersion = version,
-				MigrationContextResolver = contextResolver,
-				LoggerFactory = _loggerFactory
-			};
+			var pipelineContext = new MongoTestPipelineContext(
+				_loggerFactory, version, contextResolver);
 
 			var headStage = BuildStages(_options, pipelineContext);
 			var pipeline = new MongoTestPipeline(headStage, pipelineContext);
@@ -64,7 +60,16 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 
 	public class MongoTestPipelineContext : MongoPipelineContext
 	{
-		public ILoggerFactory LoggerFactory { get; set; }
+		public readonly ILoggerFactory LoggerFactory;
+
+		public MongoTestPipelineContext(
+			ILoggerFactory loggerFactory,
+			DbVersion version,
+			IStageContextResolver<MongoMigrationContext> migrationContextResolver)
+			: base(version, migrationContextResolver)
+		{
+			LoggerFactory = loggerFactory;
+		}
 	}
 
 	public class MongoTestPipeline : Pipeline<MongoTestPipelineContext, MongoMigrationContext>

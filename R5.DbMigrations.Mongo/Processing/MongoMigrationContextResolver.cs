@@ -5,7 +5,7 @@ using R5.DbMigrations.Mongo.Migrations;
 
 namespace R5.DbMigrations.Mongo.Processing
 {
-	public class MongoMigrationContextResolver : IMigrationContextResolver<MongoMigrationContext>
+	public class MongoMigrationContextResolver : IStageContextResolver<MongoMigrationContext>
 	{
 		private readonly MongoMigrationOptions _options;
 		private readonly string _connectionString;

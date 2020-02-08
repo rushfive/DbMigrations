@@ -17,8 +17,4 @@
     <ProjectReference Include="..\R5.DbMigrations\R5.DbMigrations.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Engine\Processing\" />
-  </ItemGroup>
-
 </Project>

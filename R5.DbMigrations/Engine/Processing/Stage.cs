@@ -27,20 +27,24 @@ namespace R5.DbMigrations.Engine.Processing
 		{
 			OnStart?.Invoke(this);
 
-			var context = _pipelineContext.MigrationContextResolver.Get();
+			var context = _pipelineContext.StageContextResolver.Get();
 			var next = await ProcessAsync(context, input);
-			switch (next)
+
+			if (_next != null)
 			{
-				case NextCommand.Continue _:
-					await _next.ProcessInternalAsync(null);
-					break;
-				case NextCommand.ContinueWith cmd:
-					await _next.ProcessInternalAsync(cmd.Result);
-					break;
-				case NextCommand.End _:
-					return;
-				default:
-					throw new InvalidOperationException($"'{next.GetType().Name}' is an invalid NextCommand specifier type.");
+				switch (next)
+				{
+					case NextCommand.Continue _:
+						await _next.ProcessInternalAsync(null);
+						break;
+					case NextCommand.ContinueWith cmd:
+						await _next.ProcessInternalAsync(cmd.Result);
+						break;
+					case NextCommand.End _:
+						return;
+					default:
+						throw new InvalidOperationException($"'{next.GetType().Name}' is an invalid NextCommand specifier type.");
+				}
 			}
 		}
 
