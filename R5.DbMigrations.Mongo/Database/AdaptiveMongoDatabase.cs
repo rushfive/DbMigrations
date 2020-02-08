@@ -8,7 +8,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using static LanguageExt.Prelude;
 
-namespace R5.DbMigrations.Mongo
+namespace R5.DbMigrations.Mongo.Database
 {
 	// create a new one per migration
 	// so we dont have to worry and manage session state

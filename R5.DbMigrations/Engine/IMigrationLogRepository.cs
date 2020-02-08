@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace R5.DbMigrations.Domain
+namespace R5.DbMigrations.Engine
 {
 	public interface IMigrationLogRepository<TMigration>
 		where TMigration : DbMigration
 	{
 		Task SaveAppliedAttemptAsync(
-			MigrationLog.ApplyAttempt attempt, 
+			MigrationLog.ApplyAttempt attempt,
 			TMigration migration);
 	}
 }

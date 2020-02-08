@@ -1,8 +1,10 @@
 ﻿using MongoDB.Driver;
-using R5.DbMigrations.Domain;
-using R5.DbMigrations.Domain.Processing;
 using R5.DbMigrations.Domain.Versioning;
-using R5.DbMigrations.Mongo;
+using R5.DbMigrations.Engine;
+using R5.DbMigrations.Engine.Processing;
+using R5.DbMigrations.Mongo.Database;
+using R5.DbMigrations.Mongo.Migrations;
+using R5.DbMigrations.Mongo.Processing;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -73,7 +75,7 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		protected override Task<NextCommand> ProcessAsync(MongoMigrationContext context, object input)
 		{
 			Console.WriteLine($"Processing stage '{nameof(TestStage1)}' with input: {input}");
-			return Task.FromResult<NextCommand>(Pipeline.Continues);
+			return Task.FromResult<NextCommand>(NextCommand.Continues);
 		}
 	}
 
@@ -88,8 +90,8 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		{
 			Console.WriteLine($"Processing stage '{nameof(TestStage2)}' with input: {input}");
 			var result = "this is a RESULT from stage 2!";
-			throw new Exception("test stage 2 failed!");
-			return Task.FromResult<NextCommand>(Pipeline.ContinuesWith(result));
+			//throw new Exception("test stage 2 failed!");
+			return Task.FromResult<NextCommand>(NextCommand.ContinuesWith(result));
 		}
 	}
 
@@ -103,65 +105,7 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		protected override Task<NextCommand> ProcessAsync(MongoMigrationContext context, object input)
 		{
 			Console.WriteLine($"Processing stage '{nameof(TestStage3)}' with input: {input}");
-			return Task.FromResult<NextCommand>(Pipeline.Ends);
-		}
-	}
-
-
-	public static class StageExtensions
-	{
-		public static Stage<TPipelineContext, TMigrationContext> Then<TPipelineContext, TMigrationContext>(
-			this Stage<TPipelineContext, TMigrationContext> current, Stage<TPipelineContext, TMigrationContext> next)
-			where TPipelineContext : PipelineContext<TMigrationContext>
-		{
-			return current.SetNext(next);
-		}
-	}
-
-
-
-	public class MongoPipelineContext : PipelineContext<MongoMigrationContext>
-	{
-		public IClientSessionHandle TransactionSession { get; set; }
-	}
-
-
-	public class MongoMigrationContextResolver : IMigrationContextResolver<MongoMigrationContext>
-	{
-		private readonly MongoMigrationOptions _options;
-		private readonly string _connectionString;
-
-		public MongoMigrationContextResolver(
-			MongoMigrationOptions options,
-			string connectionString)
-		{
-			_options = options;
-			_connectionString = connectionString;
-		}
-
-
-		public MongoMigrationContext Get()
-		{
-			var mongoDb = _options.UseTransaction
-				? AdaptiveMongoDatabase.WithTransaction(GetMongoDatabase(_connectionString))
-				: AdaptiveMongoDatabase.WithoutTransaction(GetMongoDatabase(_connectionString));
-
-			return new MongoMigrationContext
-			{
-				Database = mongoDb
-			};
-		}
-
-		private static IMongoDatabase GetMongoDatabase(string connectionStr)
-		{
-			var url = MongoUrl.Create(connectionStr);
-			var clientSettings = MongoClientSettings.FromUrl(url);
-			var client = new MongoClient(clientSettings);
-
-			// todo: configure this too
-			var dbSettings = new MongoDatabaseSettings();
-			var database = client.GetDatabase(url.DatabaseName, dbSettings);
-			return database;
+			return Task.FromResult<NextCommand>(NextCommand.Ends);
 		}
 	}
 }

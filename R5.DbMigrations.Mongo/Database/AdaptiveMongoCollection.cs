@@ -9,7 +9,7 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using MongoDB.Bson.Serialization;
 
-namespace R5.DbMigrations.Mongo
+namespace R5.DbMigrations.Mongo.Database
 {
 	public class AdaptiveMongoCollection<TDocument> : IMongoCollection<TDocument>
 	{

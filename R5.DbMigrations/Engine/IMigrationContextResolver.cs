@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace R5.DbMigrations.Domain
+namespace R5.DbMigrations.Engine
 {
 	public interface IMigrationContextResolver<T>
 	{

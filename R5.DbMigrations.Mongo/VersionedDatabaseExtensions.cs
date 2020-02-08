@@ -1,5 +1,6 @@
 ﻿using R5.DbMigrations.Domain;
 using R5.DbMigrations.Domain.Migrations;
+using R5.DbMigrations.Mongo.Migrations;
 using System;
 using System.Collections.Generic;
 using System.Linq;

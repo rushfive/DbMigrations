@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace R5.DbMigrations.Mongo
+namespace R5.DbMigrations.Mongo.Migrations
 {
 	public class MongoMigrationOptions
 	{

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace R5.DbMigrations.Mongo
+namespace R5.DbMigrations.Mongo.Migrations
 {
 	public abstract class MongoMigration : DbMigration
 	{
@@ -12,7 +12,7 @@ namespace R5.DbMigrations.Mongo
 		{
 			var context = migrationContext as MongoMigrationContext;
 
-			Debug.Assert(context != null, 
+			Debug.Assert(context != null,
 				$"Context is not the expected '{nameof(MongoMigrationContext)}' type.");
 
 			return context;
