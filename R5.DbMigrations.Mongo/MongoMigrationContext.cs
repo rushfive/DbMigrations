@@ -5,7 +5,7 @@ using System.Text;
 
 namespace R5.DbMigrations.Mongo
 {
-	public class MongoMigrationContext : MigrationContext<MongoMigrationOptions>
+	public class MongoMigrationContext
 	{
 		public AdaptiveMongoDatabase Database { get; set; }
 	}
