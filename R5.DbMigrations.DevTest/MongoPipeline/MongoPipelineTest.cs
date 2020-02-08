@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.Extensions.Logging;
+using MongoDB.Driver;
 using R5.DbMigrations.Domain.Versioning;
 using R5.DbMigrations.Engine;
 using R5.DbMigrations.Engine.Processing;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace R5.DbMigrations.DevTest.MongoPipeline
 {
-	public static class MongoPipelineTest
+	public  class MongoPipelineTest
 	{
 		private static readonly MongoMigrationOptions _options = new MongoMigrationOptions
 		{
@@ -20,17 +21,24 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		};
 		private static readonly string _connectionStr = "mongodb://mongo1:9560,mongo2:9561/DbUpgradeEval?replicaSet=dockerdev";
 
-		public static Task RunTestAsync()
+		private readonly ILoggerFactory _loggerFactory;
+		public MongoPipelineTest(ILoggerFactory loggerFactory)
+		{
+			_loggerFactory = loggerFactory;
+		}
+
+		public  Task RunTestAsync()
 		{
 			var version = new DbVersion("2021.3.3", "5.5.5");
 
 			IMigrationContextResolver<MongoMigrationContext> contextResolver
 				= new MongoMigrationContextResolver(_options, _connectionStr);
 
-			var pipelineContext = new MongoPipelineContext
+			var pipelineContext = new MongoTestPipelineContext
 			{
 				MigrationVersion = version,
-				MigrationContextResolver = contextResolver
+				MigrationContextResolver = contextResolver,
+				LoggerFactory = _loggerFactory
 			};
 
 			var headStage = BuildStages(_options, pipelineContext);
@@ -39,8 +47,8 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 			return pipeline.RunAsync();
 		}
 
-		private static Stage<MongoPipelineContext, MongoMigrationContext>
-			BuildStages(MongoMigrationOptions options, MongoPipelineContext context)
+		private static Stage<MongoTestPipelineContext, MongoMigrationContext>
+			BuildStages(MongoMigrationOptions options, MongoTestPipelineContext context)
 		{
 			var stage1 = new TestStage1(context);
 			var stage2 = new TestStage2(context);
@@ -54,34 +62,41 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		}
 	}
 
-	public class MongoTestPipeline : Pipeline<MongoPipelineContext, MongoMigrationContext>
+	public class MongoTestPipelineContext : MongoPipelineContext
+	{
+		public ILoggerFactory LoggerFactory { get; set; }
+	}
+
+	public class MongoTestPipeline : Pipeline<MongoTestPipelineContext, MongoMigrationContext>
 	{
 		public MongoTestPipeline(
-			Stage<MongoPipelineContext, MongoMigrationContext> headStage,
-			MongoPipelineContext context)
+			Stage<MongoTestPipelineContext, MongoMigrationContext> headStage,
+			MongoTestPipelineContext context)
 			: base(headStage, context)
 		{
 
 		}
 	}
 
-	public class TestStage1 : Stage<MongoPipelineContext, MongoMigrationContext>
+	public class TestStage1 : Stage<MongoTestPipelineContext, MongoMigrationContext>
 	{
-		public TestStage1(MongoPipelineContext context)
+		private ILogger<TestStage1> _logger;
+		public TestStage1(MongoTestPipelineContext context)
 			: base(context)
 		{
+			_logger = context.LoggerFactory.CreateLogger<TestStage1>();
 		}
 
 		protected override Task<NextCommand> ProcessAsync(MongoMigrationContext context, object input)
 		{
-			Console.WriteLine($"Processing stage '{nameof(TestStage1)}' with input: {input}");
+			_logger.LogInformation($"Processing stage '{nameof(TestStage1)}' with input: {input}");
 			return Task.FromResult<NextCommand>(NextCommand.Continues);
 		}
 	}
 
-	public class TestStage2 : Stage<MongoPipelineContext, MongoMigrationContext>
+	public class TestStage2 : Stage<MongoTestPipelineContext, MongoMigrationContext>
 	{
-		public TestStage2(MongoPipelineContext context)
+		public TestStage2(MongoTestPipelineContext context)
 			: base(context)
 		{
 		}
@@ -95,9 +110,9 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		}
 	}
 
-	public class TestStage3 : Stage<MongoPipelineContext, MongoMigrationContext>
+	public class TestStage3 : Stage<MongoTestPipelineContext, MongoMigrationContext>
 	{
-		public TestStage3(MongoPipelineContext context)
+		public TestStage3(MongoTestPipelineContext context)
 			: base(context)
 		{
 		}

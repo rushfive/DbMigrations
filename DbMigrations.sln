@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R5.DbMigrations.Mongo", "R5
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R5.DbMigrations.DevTest", "R5.DbMigrations.DevTest\R5.DbMigrations.DevTest.csproj", "{C4C38A23-5A3B-4C3D-8CC1-1A9380BD1E0C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R5.DbMigrations.Tests", "R5.DbMigrations.Tests\R5.DbMigrations.Tests.csproj", "{8651C39F-CB1E-489F-88D4-0C0D0200D249}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{C4C38A23-5A3B-4C3D-8CC1-1A9380BD1E0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4C38A23-5A3B-4C3D-8CC1-1A9380BD1E0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4C38A23-5A3B-4C3D-8CC1-1A9380BD1E0C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8651C39F-CB1E-489F-88D4-0C0D0200D249}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8651C39F-CB1E-489F-88D4-0C0D0200D249}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8651C39F-CB1E-489F-88D4-0C0D0200D249}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8651C39F-CB1E-489F-88D4-0C0D0200D249}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,8 +1,5 @@
 ﻿using MongoDB.Driver;
 using R5.DbMigrations.Domain.Versioning;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using DomainMigrationLog = R5.DbMigrations.Domain.Migrations.MigrationLog;
 
 namespace R5.DbMigrations.Mongo
