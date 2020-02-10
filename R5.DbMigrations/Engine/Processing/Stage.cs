@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 namespace R5.DbMigrations.Engine.Processing
 {
 	public abstract class Stage<TPipelineContext>
-		where TPipelineContext : PipelineContext
+		where TPipelineContext : MigrationContext
 	{
 		private Stage<TPipelineContext> _next { get; set; }
-		private readonly TPipelineContext _pipelineContext;
+		protected readonly TPipelineContext _context;
 
 		protected Stage(TPipelineContext pipelineContext)
 		{
-			_pipelineContext = pipelineContext;
+			_context = pipelineContext;
 		}
 
 		protected abstract Task<NextCommand> ProcessAsync(TPipelineContext context, object input);
 
-		protected virtual Action<Stage<TPipelineContext>> OnStart { get; }
+		protected virtual Action<TPipelineContext> OnStart { get; }
 
 		internal async Task ProcessInternalAsync(object input)
 		{
-			OnStart?.Invoke(this);
+			OnStart?.Invoke(_context);
 
-			var next = await ProcessAsync(_pipelineContext, input);
+			var next = await ProcessAsync(_context, input);
 
 			if (_next != null)
 			{

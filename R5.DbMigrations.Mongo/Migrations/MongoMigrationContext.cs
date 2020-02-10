@@ -1,19 +1,46 @@
-﻿using R5.DbMigrations.Domain.Versioning;
+﻿using R5.DbMigrations.Domain;
+using R5.DbMigrations.Domain.Versioning;
 using R5.DbMigrations.Engine.Processing;
 using R5.DbMigrations.Mongo.Database;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace R5.DbMigrations.Mongo.Migrations
 {
-	public class MongoMigrationContext : PipelineContext
+	public class MongoMigrationContext : MigrationContext
 	{
-		public readonly AdaptiveMongoDatabase Database;
+		public AdaptiveMongoDbContext DbContext { get; private set; }
+		public readonly MongoMigrationOptions Options;
+		private readonly Stopwatch _stopwatch;
 
 		public MongoMigrationContext(
-			AdaptiveMongoDatabase database,
+			MongoMigrationOptions options,
+			VersionedDatabase database,
 			DbVersion version)
-			: base(version)
+			: base(database, version)
 		{
-			Database = database;
+			Options = options ?? throw new ArgumentNullException(nameof(options));
+			_stopwatch = new Stopwatch();
 		}
+
+		internal void SetDbContext(AdaptiveMongoDbContext dbContext)
+		{
+			DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+		}
+
+		internal void StartStopwatch() => _stopwatch.Start();
+		internal void StopStopwatch() => _stopwatch.Stop();
+
+		internal void StartTransaction()
+		{
+			if (Options.UseTransaction)
+				DbContext.StartTransaction();
+		}
+	}
+
+	public class MongoMigrationInsights
+	{
+
 	}
 }

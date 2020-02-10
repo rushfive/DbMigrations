@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace R5.DbMigrations.Engine.Processing
 {
 	public abstract class Pipeline<TPipelineContext>
-		where TPipelineContext : PipelineContext
+		where TPipelineContext : MigrationContext
 	{
 		private readonly Stage<TPipelineContext> _headStage;
 		protected readonly TPipelineContext _context;

@@ -9,7 +9,7 @@ namespace R5.DbMigrations.Utilities
 {
 	public class PipelineBuilder<TPipeline, TPC>
 		where TPipeline : Pipeline<TPC>
-		where TPC : PipelineContext
+		where TPC : MigrationContext
 	{
 		private readonly List<Stage<TPC>> _stages
 			= new List<Stage<TPC>>();

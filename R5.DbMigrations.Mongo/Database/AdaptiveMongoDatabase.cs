@@ -12,7 +12,7 @@ namespace R5.DbMigrations.Mongo.Database
 {
 	// create a new one per migration
 	// so we dont have to worry and manage session state
-	public class AdaptiveMongoDatabase : IMongoDatabase
+	public class AdaptiveMongoDbContext : IMongoDatabase
 	{
 		public IMongoClient Client => throw new NotImplementedException();
 		public DatabaseNamespace DatabaseNamespace => throw new NotImplementedException();
@@ -28,7 +28,7 @@ namespace R5.DbMigrations.Mongo.Database
 		internal static readonly TransactionOptions _transactionOptions
 			= new TransactionOptions(ReadConcern.Snapshot, writeConcern: WriteConcern.WMajority);
 
-		private AdaptiveMongoDatabase(
+		private AdaptiveMongoDbContext(
 			IMongoDatabase database,
 			Option<IClientSessionHandle> transactionSession)
 		{
@@ -52,46 +52,46 @@ namespace R5.DbMigrations.Mongo.Database
 				.Some(s => s.AbortTransactionAsync())
 				.None(() => Task.CompletedTask);
 
-		public static AdaptiveMongoDatabase WithTransaction(IMongoDatabase database)
+		public static AdaptiveMongoDbContext WithTransaction(IMongoDatabase database)
 		{
 			if (database == null) throw new ArgumentNullException(nameof(database));
 			var session = database.Client.StartSession();
-			return new AdaptiveMongoDatabase(database, Optional(session));
+			return new AdaptiveMongoDbContext(database, Optional(session));
 		}
 
-		public static AdaptiveMongoDatabase WithoutTransaction(IMongoDatabase database)
+		public static AdaptiveMongoDbContext WithoutTransaction(IMongoDatabase database)
 		{
 			if (database == null) throw new ArgumentNullException(nameof(database));
-			return new AdaptiveMongoDatabase(database, Option<IClientSessionHandle>.None);
+			return new AdaptiveMongoDbContext(database, Option<IClientSessionHandle>.None);
 		}
 
-		public static AdaptiveMongoDatabase WithTransaction(Func<IMongoDatabase> getDatabase)
+		public static AdaptiveMongoDbContext WithTransaction(Func<IMongoDatabase> getDatabase)
 		{
 			if (getDatabase == null) throw new ArgumentNullException(nameof(getDatabase));
 			var database = getDatabase();
 			var session = database.Client.StartSession();
-			return new AdaptiveMongoDatabase(database, Optional(session));
+			return new AdaptiveMongoDbContext(database, Optional(session));
 		}
 
-		public static AdaptiveMongoDatabase WithoutTransaction(Func<IMongoDatabase> getDatabase)
+		public static AdaptiveMongoDbContext WithoutTransaction(Func<IMongoDatabase> getDatabase)
 		{
 			if (getDatabase == null) throw new ArgumentNullException(nameof(getDatabase));
-			return new AdaptiveMongoDatabase(getDatabase(), Option<IClientSessionHandle>.None);
+			return new AdaptiveMongoDbContext(getDatabase(), Option<IClientSessionHandle>.None);
 		}
 
-		public static async Task<AdaptiveMongoDatabase> WithTransactionAsync(Func<Task<IMongoDatabase>> getDatabase)
+		public static async Task<AdaptiveMongoDbContext> WithTransactionAsync(Func<Task<IMongoDatabase>> getDatabase)
 		{
 			if (getDatabase == null) throw new ArgumentNullException(nameof(getDatabase));
 			var database = await getDatabase();
 			var session = await database.Client.StartSessionAsync();
-			return new AdaptiveMongoDatabase(database, Optional(session));
+			return new AdaptiveMongoDbContext(database, Optional(session));
 		}
 
-		public static async Task<AdaptiveMongoDatabase> WithoutTransactionAsync(Func<Task<IMongoDatabase>> getDatabase)
+		public static async Task<AdaptiveMongoDbContext> WithoutTransactionAsync(Func<Task<IMongoDatabase>> getDatabase)
 		{
 			if (getDatabase == null) throw new ArgumentNullException(nameof(getDatabase));
 			var database = await getDatabase();
-			return new AdaptiveMongoDatabase(database, Option<IClientSessionHandle>.None);
+			return new AdaptiveMongoDbContext(database, Option<IClientSessionHandle>.None);
 		}
 
 		public IAsyncCursor<TResult> Aggregate<TResult>(PipelineDefinition<NoPipelineInput, TResult> pipeline, AggregateOptions options = null, CancellationToken cancellationToken = default)

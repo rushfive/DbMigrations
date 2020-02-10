@@ -1,4 +1,5 @@
-﻿using R5.DbMigrations.Engine.Processing;
+﻿using Microsoft.Extensions.Logging;
+using R5.DbMigrations.Engine.Processing;
 using R5.DbMigrations.Mongo.Migrations;
 using System;
 using System.Collections.Generic;
@@ -7,17 +8,22 @@ using System.Threading.Tasks;
 
 namespace R5.DbMigrations.Mongo.Processing
 {
-	public class MongoMigrationStage : Stage<MongoMigrationContext>
+	public abstract class MongoMigrationStage : Stage<MongoMigrationContext>
 	{
-		public MongoMigrationStage(MongoMigrationContext context)
+		protected readonly ILogger _logger;
+		protected abstract string Description { get; }
+
+		public MongoMigrationStage(
+			MongoMigrationContext context,
+			ILoggerFactory loggerFactory)
 			: base(context)
 		{
-
+			_logger = loggerFactory?.CreateLogger(nameof(MongoMigrationStage));//
 		}
 
-		protected override Task<NextCommand> ProcessAsync(MongoMigrationContext context, object input)
+		protected override Action<MongoMigrationContext> OnStart => context =>
 		{
-			throw new NotImplementedException();
-		}
+			_logger.LogInformation($"[{this.GetType().Name}] {Description}");
+		};
 	}
 }

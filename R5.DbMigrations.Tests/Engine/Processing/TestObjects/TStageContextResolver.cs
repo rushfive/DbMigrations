@@ -9,7 +9,7 @@ namespace R5.DbMigrations.Tests.Engine.Processing.TestObjects
 {
 	// pipelineContext lifetime = entire processing of pipeline
 	// whereas migrationContext lifetime is scoped to the stage
-	public class TPipelineContext : PipelineContext
+	public class TPipelineContext : MigrationContext
 	{
 		public bool SetTrueDuringProcessing { get; set; }
 		public int Integer { get; set; } = 10;

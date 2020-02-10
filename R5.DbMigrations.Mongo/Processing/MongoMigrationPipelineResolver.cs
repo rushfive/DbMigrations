@@ -20,16 +20,16 @@ namespace R5.DbMigrations.Mongo.Processing
 		{
 			MongoMigrationStage headStage = BuildStages(migration);
 
-			AdaptiveMongoDatabase db = GetAdaptiveMongoDatabase(connectionString);
+			AdaptiveMongoDbContext db = GetAdaptiveMongoDatabase(connectionString);
 			var context = new MongoMigrationContext(db, migration.Version);
 
-			return new MongoMigrationPipeline(headStage, context);
+			return new MongoMigrationPipeline(headStage, context, _options);
 		}
 
-		public AdaptiveMongoDatabase GetAdaptiveMongoDatabase(string connectionString)
+		public AdaptiveMongoDbContext GetAdaptiveMongoDatabase(string connectionString)
 			=> _options.UseTransaction
-				? AdaptiveMongoDatabase.WithTransaction(GetMongoDatabase(connectionString))
-				: AdaptiveMongoDatabase.WithoutTransaction(GetMongoDatabase(connectionString));
+				? AdaptiveMongoDbContext.WithTransaction(GetMongoDatabase(connectionString))
+				: AdaptiveMongoDbContext.WithoutTransaction(GetMongoDatabase(connectionString));
 
 		private static IMongoDatabase GetMongoDatabase(string connectionString)
 		{

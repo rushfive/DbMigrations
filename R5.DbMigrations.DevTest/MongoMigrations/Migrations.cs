@@ -20,7 +20,7 @@ namespace R5.DbMigrations.DevTest.MongoMigrations
 		{
 			MongoMigrationContext context = MapContext(migrationContext);
 
-			var collection1 = context.Database.GetCollection<BsonDocument>("TestCollection2");
+			var collection1 = context.DbContext.GetCollection<BsonDocument>("TestCollection2");
 			//throw new Exception("This migration will fail hahahaha!");
 			await collection1.UpdateManyAsync(
 				FilterDefinition<BsonDocument>.Empty,
@@ -40,7 +40,7 @@ namespace R5.DbMigrations.DevTest.MongoMigrations
 		{
 			MongoMigrationContext context = MapContext(migrationContext);
 
-			var collection1 = context.Database.GetCollection<BsonDocument>("TestCollection2");
+			var collection1 = context.DbContext.GetCollection<BsonDocument>("TestCollection2");
 
 			await collection1.UpdateManyAsync(
 				FilterDefinition<BsonDocument>.Empty,
@@ -58,11 +58,11 @@ namespace R5.DbMigrations.DevTest.MongoMigrations
 		{
 			MongoMigrationContext context = MapContext(migrationContext);
 
-			await context.Database.CreateCollectionAsync("TestCollection1");
-			await context.Database.CreateCollectionAsync("TestCollection2");
+			await context.DbContext.CreateCollectionAsync("TestCollection1");
+			await context.DbContext.CreateCollectionAsync("TestCollection2");
 
-			var collection1 = context.Database.GetCollection<BsonDocument>("TestCollection1");
-			var collection2 = context.Database.GetCollection<BsonDocument>("TestCollection2");
+			var collection1 = context.DbContext.GetCollection<BsonDocument>("TestCollection1");
+			var collection2 = context.DbContext.GetCollection<BsonDocument>("TestCollection2");
 
 			await collection1.InsertManyAsync(new List<BsonDocument>
 			{
@@ -104,7 +104,7 @@ namespace R5.DbMigrations.DevTest.MongoMigrations
 		{
 			MongoMigrationContext context = MapContext(migrationContext);
 
-			var collection1 = context.Database.GetCollection<BsonDocument>("TestCollection1");
+			var collection1 = context.DbContext.GetCollection<BsonDocument>("TestCollection1");
 
 			await collection1.UpdateManyAsync(
 				FilterDefinition<BsonDocument>.Empty,
@@ -124,7 +124,7 @@ namespace R5.DbMigrations.DevTest.MongoMigrations
 		{
 			MongoMigrationContext context = MapContext(migrationContext);
 
-			var collection1 = context.Database.GetCollection<BsonDocument>("TestCollection2");
+			var collection1 = context.DbContext.GetCollection<BsonDocument>("TestCollection2");
 
 			await collection1.UpdateManyAsync(
 				FilterDefinition<BsonDocument>.Empty,
@@ -144,7 +144,7 @@ namespace R5.DbMigrations.DevTest.MongoMigrations
 		{
 			MongoMigrationContext context = MapContext(migrationContext);
 
-			var collection1 = context.Database.GetCollection<BsonDocument>("TestCollection2");
+			var collection1 = context.DbContext.GetCollection<BsonDocument>("TestCollection2");
 
 			await collection1.UpdateManyAsync(
 				FilterDefinition<BsonDocument>.Empty,
@@ -203,7 +203,7 @@ namespace R5.DbMigrations.DevTest.MongoMigrations
 		{
 			MongoMigrationContext context = MapContext(migrationContext);
 
-			var collection1 = context.Database.GetCollection<BsonDocument>("TestCollection1");
+			var collection1 = context.DbContext.GetCollection<BsonDocument>("TestCollection1");
 
 			await collection1.UpdateManyAsync(
 				FilterDefinition<BsonDocument>.Empty,
@@ -223,7 +223,7 @@ namespace R5.DbMigrations.DevTest.MongoMigrations
 		{
 			MongoMigrationContext context = MapContext(migrationContext);
 
-			var collection1 = context.Database.GetCollection<BsonDocument>("TestCollection1");
+			var collection1 = context.DbContext.GetCollection<BsonDocument>("TestCollection1");
 
 			await collection1.UpdateManyAsync(
 				FilterDefinition<BsonDocument>.Empty,

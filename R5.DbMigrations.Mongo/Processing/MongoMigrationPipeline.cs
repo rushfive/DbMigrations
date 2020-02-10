@@ -22,14 +22,14 @@ namespace R5.DbMigrations.Mongo.Processing
 
 		protected override Func<Task> OnStart => () =>
 		{
-			_context.Database.StartTransaction();
+			_context.DbContext.StartTransaction();
 			return Task.CompletedTask;
 		};
 
 		protected override Func<Task> OnEnd => 
-			() => _context.Database.CommitTransactionAsync();
+			() => _context.DbContext.CommitTransactionAsync();
 
 		protected override Func<Exception, Task> OnError => 
-			ex => _context.Database.AbortTransactionAsync();
+			ex => _context.DbContext.AbortTransactionAsync();
 	}
 }

@@ -34,7 +34,7 @@ namespace R5.DbMigrations.Mongo.Database
 			transactionSession.IfSome(ts =>
 			{
 				if (!ts.IsInTransaction)
-					ts.StartTransaction(AdaptiveMongoDatabase._transactionOptions);
+					ts.StartTransaction(AdaptiveMongoDbContext._transactionOptions);
 			});
 		}
 

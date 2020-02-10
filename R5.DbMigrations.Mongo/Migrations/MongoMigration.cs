@@ -6,17 +6,8 @@ using System.Text;
 
 namespace R5.DbMigrations.Mongo.Migrations
 {
-	public abstract class MongoMigration : DbMigration
+	public abstract class MongoMigration : DbMigration<MongoMigrationContext>
 	{
-		protected MongoMigrationContext MapContext(object migrationContext)
-		{
-			var context = migrationContext as MongoMigrationContext;
-
-			Debug.Assert(context != null,
-				$"Context is not the expected '{nameof(MongoMigrationContext)}' type.");
-
-			return context;
-		}
 	}
 
 	public static class MongoMigrationExtensions
