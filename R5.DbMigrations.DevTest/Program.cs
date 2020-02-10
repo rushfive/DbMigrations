@@ -11,90 +11,25 @@ using R5.DbMigrations.Mongo.Processing;
 using R5.DbMigrations.Utilities;
 using Serilog;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace R5.DbMigrations.DevTest
 {
-	public class BuilderTestPipeline : Pipeline<TestBuilderStage.PC, TestBuilderStage.SC>
-	{
-		public BuilderTestPipeline(
-			Stage<TestBuilderStage.PC, TestBuilderStage.SC> headStage,
-			TestBuilderStage.PC context)
-			: base(headStage, context)
-		{
-
-		}
-	}
-	public class TestBuilderStage : Stage<TestBuilderStage.PC, TestBuilderStage.SC>
-	{
-		public TestBuilderStage()
-			: base(new PC(default, default))
-		{
-
-		}
-
-		protected override Task<NextCommand> ProcessAsync(SC context, object input)
-		{
-			throw new NotImplementedException();
-		}
-
-		public class PC : PipelineContext<SC>
-		{
-			public PC(DbVersion version, IStageContextResolver<SC> stageContextResolver) : base(version, stageContextResolver)
-			{
-			}
-		}
-		public class SC
-		{
-
-		}
-	}
+	
 	class Program
 	{
 		static async Task Main(string[] args)
 		{
-			var ctx = new TestBuilderStage.PC(default, default);
-			var s = new TestBuilderStage();
+			List<MongoMigration> mongoMigrations = ExistingMigrationsFinder
+				.GetMigrationsDerivedFrom<MongoMigration>(Assembly.GetExecutingAssembly())
+				.ToList();
 
-			var pb = PipelineBuilder<BuilderTestPipeline, TestBuilderStage.PC, TestBuilderStage.SC>.StartsWith(s);
-
-			var pppppppp = pb.Build(ctx);
-
-
-			//////////
-
-			var services = new ServiceCollection();
-			services.AddLogging();
-			services.AddScoped<MongoPipelineTest>();
-
-			// Initialize Autofac
-			var builder = new ContainerBuilder();
-			// Use the Populate method to register services which were registered
-			// to IServiceCollection
-			builder.Populate(services);
-
-			// Build the final container
-			IContainer container = builder.Build();
-
-			var loggerFactory = container.Resolve<ILoggerFactory>();
-			loggerFactory//.AddConsole()
-				.AddSerilog();
-
-			var logger = new LoggerConfiguration()
-				.Enrich.FromLogContext()
-				.WriteTo.Console()
-				//.WriteTo.File(new RenderedCompactJsonFormatter(), "TestLogs.txt")
-				.CreateLogger();
-			Log.Logger = logger;
-
-
-			var test = container.Resolve<MongoPipelineTest>();
-			await test.RunTestAsync();
-
-			//await MongoPipelineTest.RunTestAsync();
-
-
-
+			//var executingAssembly = Assembly.GetExecutingAssembly();
+			//var callingAssembly = Assembly.GetCallingAssembly();
+			//var entryAssembly = Assembly.GetEntryAssembly();
 
 			Console.WriteLine("Hello World!");
 		}

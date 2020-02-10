@@ -31,7 +31,7 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		{
 			var version = new DbVersion("2021.3.3", "5.5.5");
 
-			IStageContextResolver<MongoMigrationContext> contextResolver
+			IMigrationContextResolver<MongoMigrationContext> contextResolver
 				= new MongoMigrationContextResolver(_options, _connectionStr);
 
 			var pipelineContext = new MongoTestPipelineContext(
@@ -65,7 +65,7 @@ namespace R5.DbMigrations.DevTest.MongoPipeline
 		public MongoTestPipelineContext(
 			ILoggerFactory loggerFactory,
 			DbVersion version,
-			IStageContextResolver<MongoMigrationContext> migrationContextResolver)
+			IMigrationContextResolver<MongoMigrationContext> migrationContextResolver)
 			: base(version, migrationContextResolver)
 		{
 			LoggerFactory = loggerFactory;

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace R5.DbMigrations.Tests.Engine.Processing.TestObjects
 {
-	public class TStageContextResolver : IStageContextResolver<TStageContext>
+	public class TStageContextResolver : IMigrationContextResolver<TStageContext>
 	{
 		public TStageContext Get()
 		{
@@ -23,11 +23,11 @@ namespace R5.DbMigrations.Tests.Engine.Processing.TestObjects
 	public class TPipelineContext : PipelineContext<TStageContext>
 	{
 		public bool SetTrueDuringProcessing { get; set; }
-
+		public int Integer { get; set; } = 10;
 
 		public TPipelineContext(
 			DbVersion version,
-			IStageContextResolver<TStageContext> stageContextResolver)
+			IMigrationContextResolver<TStageContext> stageContextResolver)
 			: base(version, stageContextResolver)
 		{
 

@@ -1,4 +1,6 @@
-﻿namespace R5.DbMigrations.Engine.Processing
+﻿using System.Threading.Tasks;
+
+namespace R5.DbMigrations.Engine.Processing
 {
 	public abstract class NextCommand
 	{
@@ -15,5 +17,12 @@
 		}
 
 		public class End : NextCommand { }
+	}
+
+	public static class NextCommandExtensions
+	{
+		public static Task<NextCommand> AsAwaitable<T>(this T cmd)
+			where T : NextCommand
+			=> Task.FromResult<NextCommand>(cmd);
 	}
 }

@@ -5,7 +5,7 @@ using R5.DbMigrations.Mongo.Migrations;
 
 namespace R5.DbMigrations.Mongo.Processing
 {
-	public class MongoMigrationContextResolver : IStageContextResolver<MongoMigrationContext>
+	public class MongoMigrationContextResolver : IMigrationContextResolver<MongoMigrationContext>
 	{
 		private readonly MongoMigrationOptions _options;
 		private readonly string _connectionString;
@@ -21,14 +21,15 @@ namespace R5.DbMigrations.Mongo.Processing
 
 		public MongoMigrationContext Get()
 		{
-			var mongoDb = _options.UseTransaction
-				? AdaptiveMongoDatabase.WithTransaction(GetMongoDatabase(_connectionString))
-				: AdaptiveMongoDatabase.WithoutTransaction(GetMongoDatabase(_connectionString));
+			//var mongoDb = _options.UseTransaction
+			//	? AdaptiveMongoDatabase.WithTransaction(GetMongoDatabase(_connectionString))
+			//	: AdaptiveMongoDatabase.WithoutTransaction(GetMongoDatabase(_connectionString));
 
-			return new MongoMigrationContext
-			{
-				Database = mongoDb
-			};
+			//return new MongoMigrationContext
+			//{
+			//	Database = mongoDb
+			//};
+			return new MongoMigrationContext();
 		}
 
 		private static IMongoDatabase GetMongoDatabase(string connectionStr)

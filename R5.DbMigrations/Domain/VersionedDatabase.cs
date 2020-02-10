@@ -12,20 +12,20 @@ namespace R5.DbMigrations.Domain
 	public class VersionedDatabase
 	{
 		public readonly string Label;
-		public readonly string UpgradeSetKey;
+		public readonly string ConnectionString;
 		public readonly List<MigrationLog> AppliedMigrations;
 
 		public DbVersion CurrentVersion { get; private set; }
 
 		public VersionedDatabase(
 			string label,
-			string upgradeSetKey,
+			string connectionString,
 			IEnumerable<MigrationLog> appliedMigrations)
 		{
 			Label = label
 				?? throw new ArgumentNullException(nameof(label), "Database label must be provided.");
-			UpgradeSetKey = upgradeSetKey
-				?? throw new ArgumentNullException(nameof(upgradeSetKey), "Upgrade-set key must be provided.");
+			ConnectionString = connectionString
+				?? throw new ArgumentNullException(nameof(connectionString), "Database connection string must be provided.");
 
 			if (appliedMigrations == null)
 				throw new ArgumentNullException(nameof(appliedMigrations), "Applied migrations must be provided.");
@@ -40,14 +40,13 @@ namespace R5.DbMigrations.Domain
 		public IEnumerable<TMigration> GetRequiredMigrations<TMigration>(IEnumerable<TMigration> existingUpgrades)
 			where TMigration : DbMigration
 		{
-			var completdVersions = AppliedMigrations
+			var completedVersions = AppliedMigrations
 				.Where(m => m.LatestAttemptResult != MigrationLog.ResultType.Error)
 				.Select(m => m.DbVersion)
 				.ToHashSet();
 
 			return existingUpgrades
-				.Where(u => !completdVersions.Contains(u.Version)
-					&& u.SetKey == UpgradeSetKey)
+				.Where(u => !completedVersions.Contains(u.Version))
 				.OrderBy(u => u.Version)
 				.Cast<TMigration>();
 		}

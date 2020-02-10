@@ -11,7 +11,6 @@ namespace R5.DbMigrations.Domain.Migrations
 		: IComparable<DbMigration>, IEquatable<DbMigration>
 	{
 		public abstract DbVersion Version { get; }
-		public abstract string SetKey { get; }
 		public abstract string Description { get; }
 
 		public abstract Task ApplyAsync(object migrationContext);

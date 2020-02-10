@@ -9,14 +9,14 @@ namespace R5.DbMigrations.Engine.Processing
 		where TPipelineContext : PipelineContext<TStageContext>
 	{
 		private readonly Stage<TPipelineContext, TStageContext> _headStage;
-		private readonly TPipelineContext _context;
+		public readonly TPipelineContext Context;
 
-		public Pipeline(
+		protected Pipeline(
 			Stage<TPipelineContext, TStageContext> headStage,
 			TPipelineContext context)
 		{
 			_headStage = headStage ?? throw new ArgumentNullException(nameof(headStage));
-			_context = context ?? throw new ArgumentNullException(nameof(context));
+			Context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
 		public async Task RunAsync()
@@ -37,23 +37,10 @@ namespace R5.DbMigrations.Engine.Processing
 			}
 		}
 
-		protected virtual Func<Pipeline<TPipelineContext, TStageContext>, Task> OnStart { get; set; } = p =>
-		{
-			Console.WriteLine($"On STARTING callback invoked for pipeline '{p.GetType().Name}' (version {p._context.MigrationVersion}) !!!!");
-			return Task.CompletedTask;
-		};
+		protected virtual Func<Pipeline<TPipelineContext, TStageContext>, Task> OnStart { get; }
 
-		protected virtual Func<Pipeline<TPipelineContext, TStageContext>, Task> OnEnd { get; set; } = p =>
-		{
-			Console.WriteLine($"On END callback invoked for pipeline '{p.GetType().Name}' !!!!");
-			return Task.CompletedTask;
-		};
+		protected virtual Func<Pipeline<TPipelineContext, TStageContext>, Task> OnEnd { get; }
 
-		protected virtual Func<Exception, Pipeline<TPipelineContext, TStageContext>, Task> OnError { get; set; } = (e, p) =>
-		{
-			Console.WriteLine($"On ERROR callback invoked for pipeline '{p.GetType().Name}' because "
-				+ $"exception: '{e.Message}'");
-			return Task.CompletedTask;
-		};
+		protected virtual Func<Exception, Pipeline<TPipelineContext, TStageContext>, Task> OnError { get; }
 	}
 }

@@ -8,6 +8,6 @@ namespace R5.DbMigrations.Mongo.Migrations
 {
 	public class MongoMigrationContext
 	{
-		public AdaptiveMongoDatabase Database { get; set; }
+		//public AdaptiveMongoDatabase Database { get; set; }
 	}
 }
