@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace R5.DbMigrations.Mongo.Processing
 {
-	public class MongoMigrationStage : Stage<MongoPipelineContext, MongoMigrationContext>
+	public class MongoMigrationStage : Stage<MongoMigrationContext>
 	{
-		public MongoMigrationStage(MongoPipelineContext context)
+		public MongoMigrationStage(MongoMigrationContext context)
 			: base(context)
 		{
 

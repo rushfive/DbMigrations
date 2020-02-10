@@ -35,20 +35,22 @@ namespace R5.DbMigrations.Mongo.Database
 			_database = database;
 			_transactionSession = transactionSession;
 
-			transactionSession.IfSome(ts => ts.StartTransaction(_transactionOptions));
+			//transactionSession.IfSome(ts => ts.StartTransaction(_transactionOptions));
 		}
+
+		public void StartTransaction()
+			=> _transactionSession.IfSome(
+					ts => ts.StartTransaction(_transactionOptions));
 
 		public Task CommitTransactionAsync()
 			=> _inStartedTransactionState
 				.Some(s => s.CommitTransactionAsync())
-				.None(() => throw new InvalidOperationException(
-					"Can't COMMIT mongo transaction unless session exists and is in a started state."));
+				.None(() => Task.CompletedTask);
 
 		public Task AbortTransactionAsync()
 			=> _inStartedTransactionState
 				.Some(s => s.AbortTransactionAsync())
-				.None(() => throw new InvalidOperationException(
-					"Can't ABORT mongo transaction unless session exists and is in a started state."));
+				.None(() => Task.CompletedTask);
 
 		public static AdaptiveMongoDatabase WithTransaction(IMongoDatabase database)
 		{

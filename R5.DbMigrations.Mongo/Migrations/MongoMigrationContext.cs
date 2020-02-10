@@ -1,13 +1,19 @@
-﻿using R5.DbMigrations.Domain.Migrations;
+﻿using R5.DbMigrations.Domain.Versioning;
+using R5.DbMigrations.Engine.Processing;
 using R5.DbMigrations.Mongo.Database;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace R5.DbMigrations.Mongo.Migrations
 {
-	public class MongoMigrationContext
+	public class MongoMigrationContext : PipelineContext
 	{
-		//public AdaptiveMongoDatabase Database { get; set; }
+		public readonly AdaptiveMongoDatabase Database;
+
+		public MongoMigrationContext(
+			AdaptiveMongoDatabase database,
+			DbVersion version)
+			: base(version)
+		{
+			Database = database;
+		}
 	}
 }

@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace R5.DbMigrations.Engine.Processing
 {
-	public abstract class Stage<TPipelineContext, TStageContext>
-		where TPipelineContext : PipelineContext<TStageContext>
+	public abstract class Stage<TPipelineContext>
+		where TPipelineContext : PipelineContext
 	{
-		private Stage<TPipelineContext, TStageContext> _next { get; set; }
+		private Stage<TPipelineContext> _next { get; set; }
 		private readonly TPipelineContext _pipelineContext;
 
 		protected Stage(TPipelineContext pipelineContext)
@@ -16,16 +16,15 @@ namespace R5.DbMigrations.Engine.Processing
 			_pipelineContext = pipelineContext;
 		}
 
-		protected abstract Task<NextCommand> ProcessAsync(TStageContext context, object input);
+		protected abstract Task<NextCommand> ProcessAsync(TPipelineContext context, object input);
 
-		protected virtual Action<Stage<TPipelineContext, TStageContext>> OnStart { get; }
+		protected virtual Action<Stage<TPipelineContext>> OnStart { get; }
 
 		internal async Task ProcessInternalAsync(object input)
 		{
 			OnStart?.Invoke(this);
 
-			var context = _pipelineContext.StageContextResolver.Get();
-			var next = await ProcessAsync(context, input);
+			var next = await ProcessAsync(_pipelineContext, input);
 
 			if (_next != null)
 			{
@@ -46,7 +45,7 @@ namespace R5.DbMigrations.Engine.Processing
 		}
 
 		// links current to the next stage, then returns next
-		public Stage<TPipelineContext, TStageContext> SetNext(Stage<TPipelineContext, TStageContext> next)
+		public Stage<TPipelineContext> SetNext(Stage<TPipelineContext> next)
 		{
 			return _next = next ?? throw new ArgumentNullException(nameof(next), "Next stage must be provided.");
 		}

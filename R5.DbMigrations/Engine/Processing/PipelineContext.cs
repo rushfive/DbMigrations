@@ -2,17 +2,13 @@
 
 namespace R5.DbMigrations.Engine.Processing
 {
-	public abstract class PipelineContext<TStageContext>
+	public abstract class PipelineContext
 	{
 		public readonly DbVersion MigrationVersion;
-		public readonly IMigrationContextResolver<TStageContext> StageContextResolver;
 
-		protected PipelineContext(
-			DbVersion version,
-			IMigrationContextResolver<TStageContext> stageContextResolver)
+		protected PipelineContext(DbVersion version)
 		{
 			MigrationVersion = version;
-			StageContextResolver = stageContextResolver;
 		}
 	}
 }

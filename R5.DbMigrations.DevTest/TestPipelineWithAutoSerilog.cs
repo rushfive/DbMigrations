@@ -2,7 +2,6 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using R5.DbMigrations.DevTest.MongoPipeline;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -17,7 +16,7 @@ namespace R5.DbMigrations.DevTest
 		{
 			var services = new ServiceCollection();
 			services.AddLogging();
-			services.AddScoped<MongoPipelineTest>();
+			//services.AddScoped<MongoPipelineTest>();
 
 			// Initialize Autofac
 			var builder = new ContainerBuilder();
@@ -40,8 +39,8 @@ namespace R5.DbMigrations.DevTest
 			Log.Logger = logger;
 
 
-			var test = container.Resolve<MongoPipelineTest>();
-			await test.RunTestAsync();
+			//var test = container.Resolve<MongoPipelineTest>();
+			//await test.RunTestAsync();
 		}
 	}
 }

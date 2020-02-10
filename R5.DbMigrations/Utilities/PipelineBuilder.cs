@@ -7,26 +7,26 @@ using System.Threading.Tasks;
 
 namespace R5.DbMigrations.Utilities
 {
-	public class PipelineBuilder<TPipeline, TPC, TSC>
-		where TPipeline : Pipeline<TPC, TSC>
-		where TPC : PipelineContext<TSC>
+	public class PipelineBuilder<TPipeline, TPC>
+		where TPipeline : Pipeline<TPC>
+		where TPC : PipelineContext
 	{
-		private readonly List<Stage<TPC, TSC>> _stages
-			= new List<Stage<TPC, TSC>>();
+		private readonly List<Stage<TPC>> _stages
+			= new List<Stage<TPC>>();
 
 		public PipelineBuilder()
 		{
 		}
 
-		public static PipelineBuilder<TPipeline, TPC, TSC> StartsWith(
-			Stage<TPC, TSC> stage)
+		public static PipelineBuilder<TPipeline, TPC> StartsWith(
+			Stage<TPC> stage)
 		{
-			return new PipelineBuilder<TPipeline, TPC, TSC>()
+			return new PipelineBuilder<TPipeline, TPC>()
 				.AddNext(stage);
 		}
 
-		public PipelineBuilder<TPipeline, TPC, TSC> AddNext(
-			Stage<TPC, TSC> stage)
+		public PipelineBuilder<TPipeline, TPC> AddNext(
+			Stage<TPC> stage)
 		{
 			_stages.Add(stage);
 			return this;
@@ -34,9 +34,9 @@ namespace R5.DbMigrations.Utilities
 
 		public TPipeline Build(
 			TPC context,
-			Func<Pipeline<TPC, TSC>, Task> onStart = null,
-			Func<Pipeline<TPC, TSC>, Task> onEnd = null,
-			Func<Exception, Pipeline<TPC, TSC>, Task> onError = null)
+			Func<TPC, Task> onStart = null,
+			Func<TPC, Task> onEnd = null,
+			Func<Exception, TPC, Task> onError = null)
 		{
 			var curr = _stages.First();
 			_stages.Skip(1).ForEach(s =>

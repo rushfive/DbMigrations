@@ -6,25 +6,25 @@ using System.Threading.Tasks;
 
 namespace R5.DbMigrations.Tests.Engine.Processing.TestObjects
 {
-	public class TStage : Stage<TPipelineContext, TStageContext>
+	public class TStage : Stage<TPipelineContext>
 	{
-		private readonly Func<TStageContext, object, Task<NextCommand>> _process;
+		private readonly Func<TPipelineContext, object, Task<NextCommand>> _process;
 
 		public TStage(
-			Func<TStageContext, object, Task<NextCommand>> process,
+			Func<TPipelineContext, object, Task<NextCommand>> process,
 			TPipelineContext context,
-			Action<Stage<TPipelineContext, TStageContext>> onStart = null)
+			Action<Stage<TPipelineContext>> onStart = null)
 			: base(context)
 		{
 			_process = process;
 			OnStart = onStart;
 		}
 
-		protected override Task<NextCommand> ProcessAsync(TStageContext context, object input)
+		protected override Task<NextCommand> ProcessAsync(TPipelineContext context, object input)
 		{
 			return _process(context, input);
 		}
 
-		protected override Action<Stage<TPipelineContext, TStageContext>> OnStart { get; }
+		protected override Action<Stage<TPipelineContext>> OnStart { get; }
 	}
 }

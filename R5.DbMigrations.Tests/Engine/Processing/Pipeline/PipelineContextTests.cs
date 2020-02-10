@@ -26,15 +26,15 @@ namespace R5.DbMigrations.Tests.Engine.Processing.Pipeline
 					_context,
 					(c, o) => NextCommand.Continues.AsAwaitable());
 
-			Func<Pipeline<TPipelineContext, TStageContext>, Task> onPipelineStart = p =>
+			Func<TPipelineContext, Task> onPipelineStart = p =>
 			{
-				Assert.Same(_context, p.Context);
+				Assert.Same(_context, _context);
 				return Task.CompletedTask;
 			};
 
-			Func<Pipeline<TPipelineContext, TStageContext>, Task> onPipelineEnd = p =>
+			Func<TPipelineContext, Task> onPipelineEnd = p =>
 			{
-				Assert.Same(_context, p.Context);
+				Assert.Same(_context, _context);
 				return Task.CompletedTask;
 			};
 

@@ -14,15 +14,13 @@ namespace R5.DbMigrations.Tests.Engine.Processing
 	public abstract class ProcessingTests
 	{
 		protected readonly TPipelineContext _context;
-		protected readonly TStageContextResolver _resolver;
-		protected readonly PipelineBuilder<TPipeline, TPipelineContext, TStageContext> _builder;
+		protected readonly PipelineBuilder<TPipeline, TPipelineContext> _builder;
 
 		protected ProcessingTests()
 		{
 			var version = new DbVersion("2020.1.1", "1.1.1");
-			_resolver = new TStageContextResolver();
-			_context = new TPipelineContext(version, _resolver);
-			_builder = new PipelineBuilder<TPipeline, TPipelineContext, TStageContext>();
+			_context = new TPipelineContext(version);
+			_builder = new PipelineBuilder<TPipeline, TPipelineContext>();
 		}
 	}
 }

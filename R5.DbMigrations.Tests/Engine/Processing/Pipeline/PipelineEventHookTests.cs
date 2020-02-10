@@ -19,9 +19,9 @@ namespace R5.DbMigrations.Tests.Engine.Processing.Pipeline
 				_context,
 				(c, o) => NextCommand.Continues.AsAwaitable());
 
-			Func<Pipeline<TPipelineContext, TStageContext>, Task> onPipelineStart = p =>
+			Func<TPipelineContext, Task> onPipelineStart = p =>
 			{
-				p.Context.Integer++;
+				_context.Integer++;
 				return Task.CompletedTask;
 			};
 
@@ -65,10 +65,10 @@ namespace R5.DbMigrations.Tests.Engine.Processing.Pipeline
 					return NextCommand.Continues.AsAwaitable();
 				});
 
-			Func<Pipeline<TPipelineContext, TStageContext>, Task> onPipelineEnd = p =>
+			Func<TPipelineContext, Task> onPipelineEnd = p =>
 			{
 				Assert.Equal(preProcessValue, _context.Integer);
-				p.Context.Integer++;
+				_context.Integer++;
 				return Task.CompletedTask;
 			};
 
@@ -90,10 +90,10 @@ namespace R5.DbMigrations.Tests.Engine.Processing.Pipeline
 				_context,
 				(c, o) => throw new ProcessTestException(default));
 
-			Func<Pipeline<TPipelineContext, TStageContext>, Task> onPipelineEnd = p =>
+			Func<TPipelineContext, Task> onPipelineEnd = p =>
 			{
 				Assert.Equal(preProcessValue, _context.Integer);
-				p.Context.Integer++;
+				_context.Integer++;
 				return Task.CompletedTask;
 			};
 
@@ -117,7 +117,7 @@ namespace R5.DbMigrations.Tests.Engine.Processing.Pipeline
 				_context,
 				(c, o) => throw new ProcessTestException(5));
 
-			Func<Exception, Pipeline<TPipelineContext, TStageContext>, Task> onPipelineError = (e, p) =>
+			Func<Exception, TPipelineContext, Task> onPipelineError = (e, p) =>
 			{
 				var testException = e as ProcessTestException;
 				Assert.NotNull(testException);
