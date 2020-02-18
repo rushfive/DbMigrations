@@ -1,4 +1,5 @@
 ﻿using R5.DbMigrations.Domain;
+using R5.DbMigrations.Domain.Migrations;
 using R5.DbMigrations.Domain.Versioning;
 using R5.DbMigrations.Engine.Processing;
 using R5.DbMigrations.Mongo.Database;
@@ -12,6 +13,7 @@ namespace R5.DbMigrations.Mongo.Migrations
 	{
 		public AdaptiveMongoDbContext DbContext { get; private set; }
 		public readonly MongoMigrationOptions Options;
+		public readonly MongoMigrationInsights Insights;
 		private readonly Stopwatch _stopwatch;
 
 		public MongoMigrationContext(
@@ -21,6 +23,7 @@ namespace R5.DbMigrations.Mongo.Migrations
 			: base(database, version)
 		{
 			Options = options ?? throw new ArgumentNullException(nameof(options));
+			Insights = new MongoMigrationInsights();
 			_stopwatch = new Stopwatch();
 		}
 
@@ -41,6 +44,7 @@ namespace R5.DbMigrations.Mongo.Migrations
 
 	public class MongoMigrationInsights
 	{
+		public MigrationResultType? MigrationResult { get; private set; }
 
 	}
 }

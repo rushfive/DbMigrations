@@ -29,13 +29,24 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			try
 			{
 				await _migration.ApplyAsync(context);
+				return NextCommand.Continues;
 			}
 			catch (Exception ex)
 			{
-
+				if (context.Options.RetryWithoutTransactionOnFail)
+				{
+					_logger.LogWarning($"Migration failed. Aborting current transaction and "
+						+ "retrying without one.");
+					await context.DbContext.AbortTransactionAsync();
+					await _migration.ApplyAsync(context);
+					return NextCommand.Continues;
+				}
+				else
+				{
+					_logger.LogError(ex, "Failed to apply migrations. Might need to re-run without transactions.");
+					throw;
+				}
 			}
-
-			throw new NotImplementedException();
 		}
 	}
 }

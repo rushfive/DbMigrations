@@ -22,7 +22,7 @@ namespace R5.DbMigrations.Mongo.Processing
 
 		protected override Func<Task> OnStart => () =>
 		{
-			_context.DbContext.StartTransaction();
+			//_context.DbContext.StartTransaction();
 			return Task.CompletedTask;
 		};
 

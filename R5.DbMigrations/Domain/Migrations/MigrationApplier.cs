@@ -13,7 +13,7 @@ namespace R5.DbMigrations.Domain.Migrations
 		private ILogger _logger { get; }
 		private Stopwatch _stopwatch { get; }
 		private DateTime? _startTime { get; set; }
-		private MigrationLog.ResultType? _result { get; set; }
+		private MigrationLog.MigrationResultType? _result { get; set; }
 		private object _additionalContext { get; set; }
 
 		public MigrationApplier(
@@ -37,12 +37,12 @@ namespace R5.DbMigrations.Domain.Migrations
 				_startTime = DateTime.UtcNow;
 
 				await _migration.ApplyAsync(context);
-				_result = MigrationLog.ResultType.Completed;
+				_result = MigrationLog.MigrationResultType.Completed;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "Migration failed.");
-				_result = MigrationLog.ResultType.Error;
+				_result = MigrationLog.MigrationResultType.Error;
 				_additionalContext = new
 				{
 					Exception = ex,

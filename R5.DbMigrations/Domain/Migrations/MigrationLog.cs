@@ -33,7 +33,7 @@ namespace R5.DbMigrations.Domain.Migrations
 		}
 
 		// enforce this record not created unless attempt persisted?
-		public ResultType LatestAttemptResult =>
+		public MigrationResultType LatestAttemptResult =>
 			History.OrderByDescending(a => a.Start)
 				.First().Result;
 
@@ -43,17 +43,10 @@ namespace R5.DbMigrations.Domain.Migrations
 		{
 			public DateTime Start { get; set; }
 			public double ElapsedTimeSeconds { get; set; }
-			public ResultType Result { get; set; }
+			public MigrationResultType Result { get; set; }
 			public object AdditionalContext { get; set; }
 
-			public bool DidNotFail => Result != ResultType.Error;
-		}
-
-		public enum ResultType
-		{
-			Error,
-			Completed,
-			SkippedFromInit
+			public bool DidNotFail => Result != MigrationResultType.Error;
 		}
 
 		public int CompareTo([AllowNull] MigrationLog other)

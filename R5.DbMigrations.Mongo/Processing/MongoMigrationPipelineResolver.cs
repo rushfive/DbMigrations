@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using R5.DbMigrations.Domain;
 using R5.DbMigrations.Mongo.Database;
 using R5.DbMigrations.Mongo.Migrations;
 using System;
@@ -10,18 +11,22 @@ namespace R5.DbMigrations.Mongo.Processing
 	internal class MongoMigrationPipelineResolver
 	{
 		private readonly MongoMigrationOptions _options;
+		private readonly VersionedDatabase _database;
 
-		internal MongoMigrationPipelineResolver(MongoMigrationOptions options)
+		internal MongoMigrationPipelineResolver(
+			MongoMigrationOptions options,
+			VersionedDatabase database)
 		{
 			_options = options;
+			_database = database;
 		}
 
 		internal MongoMigrationPipeline CreateFor(MongoMigration migration, string connectionString)
 		{
 			MongoMigrationStage headStage = BuildStages(migration);
 
-			AdaptiveMongoDbContext db = GetAdaptiveMongoDatabase(connectionString);
-			var context = new MongoMigrationContext(db, migration.Version);
+			//AdaptiveMongoDbContext db = GetAdaptiveMongoDatabase(connectionString);
+			var context = new MongoMigrationContext(_options, _database, migration.Version);
 
 			return new MongoMigrationPipeline(headStage, context, _options);
 		}

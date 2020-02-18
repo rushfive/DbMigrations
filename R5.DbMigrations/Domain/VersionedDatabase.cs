@@ -41,7 +41,7 @@ namespace R5.DbMigrations.Domain
 			where TMigration : DbMigration
 		{
 			var completedVersions = AppliedMigrations
-				.Where(m => m.LatestAttemptResult != MigrationLog.ResultType.Error)
+				.Where(m => m.LatestAttemptResult != MigrationLog.MigrationResultType.Error)
 				.Select(m => m.DbVersion)
 				.ToHashSet();
 

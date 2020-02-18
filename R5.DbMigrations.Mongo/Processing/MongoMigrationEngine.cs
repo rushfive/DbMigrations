@@ -19,13 +19,13 @@ namespace R5.DbMigrations.Mongo.Processing
 			: base(database)
 		{
 			if (options == null) throw new ArgumentNullException(nameof(options), "Mongo migration options must be provided.");
-			_pipelineResolver = new MongoMigrationPipelineResolver(options);
+			_pipelineResolver = new MongoMigrationPipelineResolver(options, database);
 		}
 
 
 		public override async Task RunAsync(IEnumerable<MongoMigration> allExistingMigrations)
 		{
-			List<MongoMigration> requiredMigrations = _database.GetRequiredMigrations(allExistingMigrations).ToList();
+			List<MongoMigration> requiredMigrations = _database.GetRequiredMigrations<MongoMigration>(allExistingMigrations).ToList();
 
 			foreach(var m in requiredMigrations)
 			{
@@ -35,7 +35,7 @@ namespace R5.DbMigrations.Mongo.Processing
 
 		private async Task RunMigrationAsync(MongoMigration migration)
 		{
-			MongoMigrationPipeline pipeline = _pipelineResolver.CreateFor(migration);
+			MongoMigrationPipeline pipeline = _pipelineResolver.CreateFor(migration, _database);
 		}
 	}
 }
