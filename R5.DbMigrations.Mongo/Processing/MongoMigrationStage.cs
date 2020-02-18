@@ -11,7 +11,7 @@ namespace R5.DbMigrations.Mongo.Processing
 	public abstract class MongoMigrationStage : Stage<MongoMigrationContext>
 	{
 		protected readonly ILogger _logger;
-		protected abstract string Description { get; }
+		//protected abstract string Description { get; }
 
 		public MongoMigrationStage(
 			MongoMigrationContext context,

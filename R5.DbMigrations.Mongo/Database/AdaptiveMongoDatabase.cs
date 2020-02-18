@@ -12,7 +12,7 @@ namespace R5.DbMigrations.Mongo.Database
 {
 	// create a new one per migration
 	// so we dont have to worry and manage session state
-	public class AdaptiveMongoDbContext : IMongoDatabase
+	public sealed class AdaptiveMongoDbContext : IMongoDatabase, IDisposable
 	{
 		public IMongoClient Client => throw new NotImplementedException();
 		public DatabaseNamespace DatabaseNamespace => throw new NotImplementedException();
@@ -20,6 +20,7 @@ namespace R5.DbMigrations.Mongo.Database
 
 		private readonly IMongoDatabase _database;
 		private readonly Option<IClientSessionHandle> _transactionSession;
+		private bool _disposed = false;
 
 		private Option<IClientSessionHandle> _inStartedTransactionState => _transactionSession
 			.Some(s => s.IsInTransaction ? _transactionSession : Option<IClientSessionHandle>.None)
@@ -296,6 +297,31 @@ namespace R5.DbMigrations.Mongo.Database
 		public IMongoDatabase WithWriteConcern(WriteConcern writeConcern)
 		{
 			throw new NotImplementedException();
+		}
+
+		private void Dispose(bool disposing)
+		{
+			if (!_disposed)
+			{
+				if (disposing)
+				{
+				}
+
+				_transactionSession.IfSome(ts =>
+				{
+					Console.WriteLine($"Database connection is closing with an active mongo transaction. Aborting.");
+					ts.AbortTransaction();
+					ts.Dispose();
+				});
+
+				_disposed = true;
+			}
+		}
+
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
 		}
 	}
 }

@@ -9,42 +9,40 @@ using System.Threading.Tasks;
 
 namespace R5.DbMigrations.Mongo.Migrations
 {
+	// should have a new instance per migration
 	public class MongoMigrationContext : MigrationContext
 	{
-		public AdaptiveMongoDbContext DbContext { get; private set; }
 		public readonly MongoMigrationOptions Options;
-		public readonly MongoMigrationInsights Insights;
-		private readonly Stopwatch _stopwatch;
+		public readonly AdaptiveMongoDbContext DbContext;
+		//public readonly MongoMigrationInsights Insights;
+		//private readonly Stopwatch _stopwatch;
 
 		public MongoMigrationContext(
 			MongoMigrationOptions options,
 			VersionedDatabase database,
-			DbVersion version)
+			DbVersion version,
+			AdaptiveMongoDbContext dbContext)
 			: base(database, version)
 		{
 			Options = options ?? throw new ArgumentNullException(nameof(options));
-			Insights = new MongoMigrationInsights();
-			_stopwatch = new Stopwatch();
+			DbContext = dbContext;
+			//Insights = new MongoMigrationInsights();
+			//_stopwatch = new Stopwatch();
 		}
 
-		internal void SetDbContext(AdaptiveMongoDbContext dbContext)
-		{
-			DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-		}
+		internal MongoMigrationContext ForMigration(DbVersion version, AdaptiveMongoDbContext dbContext)
+			=> new MongoMigrationContext(Options, Database, version, dbContext);
 
-		internal void StartStopwatch() => _stopwatch.Start();
-		internal void StopStopwatch() => _stopwatch.Stop();
-
-		internal void StartTransaction()
-		{
-			if (Options.UseTransaction)
-				DbContext.StartTransaction();
-		}
+		//internal void StartTransaction()
+		//{
+		//	if (Options.UseTransaction)
+		//		DbContext.StartTransaction();
+		//}
 	}
 
-	public class MongoMigrationInsights
-	{
-		public MigrationResultType? MigrationResult { get; private set; }
+	//public class MongoMigrationInsights
+	//{
+	//	public MigrationResultType? MigrationResult { get; private set; }
 
-	}
+	//}
 }

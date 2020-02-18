@@ -8,39 +8,32 @@ namespace R5.DbMigrations.Engine.Processing
 	public abstract class Pipeline<TPipelineContext>
 		where TPipelineContext : MigrationContext
 	{
-		private readonly Stage<TPipelineContext> _headStage;
+		//private readonly Stage<TPipelineContext> _headStage;
+		private readonly IEnumerable<Stage<TPipelineContext>> _stages;
 		protected readonly TPipelineContext _context;
 
 		protected Pipeline(
-			Stage<TPipelineContext> headStage,
+			//Stage<TPipelineContext> headStage,
+			IEnumerable<Stage<TPipelineContext>> stages,
 			TPipelineContext context)
 		{
-			_headStage = headStage ?? throw new ArgumentNullException(nameof(headStage));
+			_stages = stages;
 			_context = context ?? throw new ArgumentNullException(nameof(context));
 		}
 
 		public async Task RunAsync()
 		{
-			try
+			if (OnStart != null) await OnStart();
+
+			foreach (var s in _stages)
 			{
-				if (OnStart != null) await OnStart();
-				await _headStage.ProcessInternalAsync(default);
+				await s.ProcessAsync(_context);
 			}
-			catch (Exception ex)
-			{
-				if (OnError != null) await OnError(ex);
-				throw;
-			}
-			finally
-			{
-				if (OnEnd != null) await OnEnd();
-			}
+
+			if (OnEnd != null) await OnEnd();
 		}
 
 		protected virtual Func<Task> OnStart { get; }
-
 		protected virtual Func<Task> OnEnd { get; }
-
-		protected virtual Func<Exception, Task> OnError { get; }
 	}
 }

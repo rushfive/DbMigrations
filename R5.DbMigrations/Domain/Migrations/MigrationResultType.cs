@@ -8,6 +8,6 @@ namespace R5.DbMigrations.Domain.Migrations
 	{
 		Error,
 		Completed,
-		SkippedFromInit
+		//SkippedFromInit
 	}
 }

@@ -9,38 +9,35 @@ namespace R5.DbMigrations.Engine.Processing
 		where TPipelineContext : MigrationContext
 	{
 		private Stage<TPipelineContext> _next { get; set; }
-		protected readonly TPipelineContext _context;
+		//protected readonly TPipelineContext _context;
 
-		protected Stage(TPipelineContext pipelineContext)
+		//protected Stage(TPipelineContext pipelineContext)
+		//{
+		//	_context = pipelineContext;
+		//}
+		protected Stage() { }
+
+		protected virtual Func<TPipelineContext, Task> OnStart { get; }
+		protected virtual Func<TPipelineContext, Task> OnComplete { get; }
+		protected virtual Func<TPipelineContext, Task> OnError { get; }
+
+		protected abstract Task<NextCommand> ProcessAsync(TPipelineContext context);
+
+		internal async Task<NextCommand> ProcessInternalAsync(TPipelineContext context)
 		{
-			_context = pipelineContext;
-		}
-
-		protected abstract Task<NextCommand> ProcessAsync(TPipelineContext context, object input);
-
-		protected virtual Action<TPipelineContext> OnStart { get; }
-
-		internal async Task ProcessInternalAsync(object input)
-		{
-			OnStart?.Invoke(_context);
-
-			var next = await ProcessAsync(_context, input);
-
-			if (_next != null)
+			try
 			{
-				switch (next)
-				{
-					case NextCommand.Continue _:
-						await _next.ProcessInternalAsync(null);
-						break;
-					case NextCommand.ContinueWith cmd:
-						await _next.ProcessInternalAsync(cmd.Result);
-						break;
-					case NextCommand.End _:
-						return;
-					default:
-						throw new InvalidOperationException($"'{next.GetType().Name}' is an invalid NextCommand specifier type.");
-				}
+				if (OnStart != null) await OnStart(context);
+
+				var next = await ProcessAsync(context);
+
+				if (OnComplete != null) await OnComplete(context);
+				return next;
+			}
+			catch (Exception ex)
+			{
+				if (OnError != null) await OnError(context);
+				throw;
 			}
 		}
 

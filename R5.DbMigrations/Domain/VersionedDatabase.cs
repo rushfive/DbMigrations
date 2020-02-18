@@ -37,24 +37,31 @@ namespace R5.DbMigrations.Domain
 
 		public bool HasBeenInitialized => CurrentVersion != DbVersion.NewDatabase;
 
-		public IEnumerable<TMigration> GetRequiredMigrations<TMigration>(IEnumerable<TMigration> existingUpgrades)
-			where TMigration : DbMigration
-		{
-			var completedVersions = AppliedMigrations
-				.Where(m => m.LatestAttemptResult != MigrationLog.MigrationResultType.Error)
+		//public IEnumerable<TMigration> GetRequiredMigrations<TMigration>(IEnumerable<TMigration> existingUpgrades)
+		//	where TMigration : DbMigration
+		//{
+		//	var completedVersions = AppliedMigrations
+		//		.Where(m => m.LatestAttemptResult != MigrationResultType.Error)
+		//		.Select(m => m.DbVersion)
+		//		.ToHashSet();
+
+		//	return existingUpgrades
+		//		.Where(u => !completedVersions.Contains(u.Version))
+		//		.OrderBy(u => u.Version)
+		//		.Cast<TMigration>();
+		//}
+
+		public DbVersion GetLatestCompletedMigrationVersion()
+			=> AppliedMigrations
+				.Where(m => m.LatestAttemptResult == MigrationResultType.Completed)
 				.Select(m => m.DbVersion)
-				.ToHashSet();
-
-			return existingUpgrades
-				.Where(u => !completedVersions.Contains(u.Version))
-				.OrderBy(u => u.Version)
-				.Cast<TMigration>();
-		}
-
-		public MigrationLog.ApplyAttempt LatestAttempt =>
-			AppliedMigrations.SelectMany(m => m.History)
-				.OrderByDescending(a => a.Start)
+				.OrderByDescending(v => v)
 				.FirstOrDefault();
+
+		//public MigrationLog.ApplyAttempt LatestAttempt =>
+		//	AppliedMigrations.SelectMany(m => m.History)
+		//		.OrderByDescending(a => a.Start)
+		//		.FirstOrDefault();
 
 		// replaced with db.AddMigrationLog()
 		//public void UpdateWithAppliedMigration(
@@ -72,14 +79,14 @@ namespace R5.DbMigrations.Domain
 		//	}
 		//}
 
-		public Option<MigrationLog.ApplyAttempt> LatestAttemptFor(DbVersion version)
-		{
-			MigrationLog.ApplyAttempt attempt = AppliedMigrations.SingleOrDefault(m => m.DbVersion == version)?
-				.History
-				.OrderByDescending(a => a.Start)
-				.FirstOrDefault();
-			return attempt;
-		}
+		//public Option<MigrationLog.ApplyAttempt> LatestAttemptFor(DbVersion version)
+		//{
+		//	MigrationLog.ApplyAttempt attempt = AppliedMigrations.SingleOrDefault(m => m.DbVersion == version)?
+		//		.History
+		//		.OrderByDescending(a => a.Start)
+		//		.FirstOrDefault();
+		//	return attempt;
+		//}
 	}
 
 	

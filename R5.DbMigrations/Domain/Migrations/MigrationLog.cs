@@ -45,8 +45,6 @@ namespace R5.DbMigrations.Domain.Migrations
 			public double ElapsedTimeSeconds { get; set; }
 			public MigrationResultType Result { get; set; }
 			public object AdditionalContext { get; set; }
-
-			public bool DidNotFail => Result != MigrationResultType.Error;
 		}
 
 		public int CompareTo([AllowNull] MigrationLog other)
