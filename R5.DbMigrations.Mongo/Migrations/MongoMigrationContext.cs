@@ -17,7 +17,7 @@ namespace R5.DbMigrations.Mongo.Migrations
 		//public readonly MongoMigrationInsights Insights;
 		//private readonly Stopwatch _stopwatch;
 
-		public MongoMigrationContext(
+		private MongoMigrationContext(
 			MongoMigrationOptions options,
 			VersionedDatabase database,
 			DbVersion version,
@@ -29,6 +29,11 @@ namespace R5.DbMigrations.Mongo.Migrations
 			//Insights = new MongoMigrationInsights();
 			//_stopwatch = new Stopwatch();
 		}
+
+		public static MongoMigrationContext Initialize(
+			MongoMigrationOptions options,
+			VersionedDatabase database)
+			=> new MongoMigrationContext(options, database, null, null);
 
 		internal MongoMigrationContext ForMigration(DbVersion version, AdaptiveMongoDbContext dbContext)
 			=> new MongoMigrationContext(Options, Database, version, dbContext);

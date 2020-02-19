@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace R5.DbMigrations.Mongo.Processing.Stages
 {
-	public class RunMigrationStage : Stage<MongoMigrationContext>
+	public class RunMigrationStage : MongoMigrationStage
 	{
 		private readonly ILogger _logger;
 		private readonly MongoMigration _migration;
@@ -32,12 +32,13 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			bool useTransaction = context.Options.UseTransaction;
 			bool retryWithoutTransaction = context.Options.RetryWithoutTransactionOnFail;
 
-			MigrationLog.ApplyAttempt attempt = await RunMigrationAsync(context, useTransaction);
+			MigrationLog.ApplyAttempt attempt = await RunMigrationAsync(context, useTransaction && _migration.CanUseTransaction);
 
 			// initial failed attempt used transaction, and processing is set to retry
 			bool shouldRetry = attempt.Result == MigrationResultType.Error
 				&& useTransaction
-				&& retryWithoutTransaction;
+				&& retryWithoutTransaction
+				&& _migration.CanUseTransaction;
 
 			if (shouldRetry)
 			{
@@ -78,11 +79,25 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 				dbContext.StartTransaction();
 				sw.Start();
 
-				await _migration.ApplyAsync(context);
+				await _migration.ApplyAsync(migrationContext);
 
 				await dbContext.CommitTransactionAsync();
 				result = MigrationResultType.Completed;
 			}
+			//catch (MongoCommandException ex)
+			//{
+
+			//}
+			//catch (MongoServerException ex)
+			//{
+			//	var cn = ex.ConnectionId;
+			//	var server = ex.ConnectionId.ServerId;
+			//	var endpoint = ex.ConnectionId.ServerId.EndPoint;
+			//}
+			//catch (MongoException ex)
+			//{
+
+			//}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex, "Migration failed.");
@@ -101,7 +116,7 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			{
 				sw.Stop();
 			}
-
+			
 			return new MigrationLog.ApplyAttempt
 			{
 				Start = startTime,
@@ -109,6 +124,49 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 				Result = result.Value,
 				AdditionalContext = additionalContext
 			};
+		}
+
+		private static MigrationLog.ErrorContext CreateErrorContext<TException>(TException exception)
+			where TException : Exception
+		{
+			string message = null;
+			string stackTrace = exception.ToStringDemystified();
+			switch (exception)
+			{
+				// connection
+				case MongoAuthenticationException _:
+				case MongoConnectionClosedException _:
+				case MongoConnectionException _:
+					message = exception.Message;
+					break;
+				// query
+				//case MongoCursorNotFoundException _:
+				case MongoQueryException ex:
+					message = $"Error executing query: {ex.Query}";
+					break;
+				// cmd
+				case MongoDuplicateKeyException ex:
+				case MongoWriteConcernException ex:
+				case MongoNodeIsRecoveringException ex:
+				case MongoNotPrimaryException ex:
+				case MongoCommandException ex:
+
+				//client
+				case MongoWaitQueueFullException ex:
+				case MongoConfigurationException ex:
+				case MongoClientException ex:
+				//svr
+				case MongoBulkWriteException ex:
+				case MongoWriteException ex:
+				case MongoExecutionTimeoutException ex:
+				case MongoServerException ex:
+				// internal - bug
+				case MongoInternalException ex:
+				// catch all for mongo ex
+				case MongoException ex:
+					break;
+					
+			}
 		}
 
 		private AdaptiveMongoDbContext GetMongoDbContext(string connectionString, bool useTransaction)
@@ -148,11 +206,12 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			}
 			else
 			{
-				log = new MigrationLog(
-					migration.Version.Version,
-					migration.Version.YearQuarter,
-					migration.Description,
-					new List<MigrationLog.ApplyAttempt> { attempt });
+				log = migration.CreateLogFor(attempt);
+				//log = new MigrationLog(
+				//	migration.Version.Version,
+				//	migration.Version.YearQuarter,
+				//	migration.Description,
+				//	new List<MigrationLog.ApplyAttempt> { attempt });
 				await collection.InsertOneAsync(log);
 			}
 		}

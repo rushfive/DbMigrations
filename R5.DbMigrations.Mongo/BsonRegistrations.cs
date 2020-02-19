@@ -3,6 +3,7 @@ using MongoDB.Bson.Serialization;
 using MongoDB.Bson.Serialization.Serializers;
 using R5.DbMigrations.Domain.Migrations;
 using R5.DbMigrations.Mongo.Serializers;
+using static R5.DbMigrations.Domain.Migrations.MigrationLog;
 
 namespace R5.DbMigrations.Mongo
 {
@@ -22,6 +23,12 @@ namespace R5.DbMigrations.Mongo
 				cm.MapIdProperty(l => l.SemVer).SetSerializer(new SemanticVersionSerializer());
 				cm.MapProperty(l => l.Version).SetSerializer(new YearQuarterVersionSerializer());
 			});
+			
+			//BsonClassMap.RegisterClassMap<ApplyAttempt>(cm =>
+			//{
+			//	cm.
+			//	cm.MapProperty(l => l.AdditionalContext).SetSerializer(new BsonDocumentSerializer());///////////
+			//});
 		}
 	}
 }

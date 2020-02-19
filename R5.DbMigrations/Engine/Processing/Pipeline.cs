@@ -8,13 +8,11 @@ namespace R5.DbMigrations.Engine.Processing
 	public abstract class Pipeline<TPipelineContext>
 		where TPipelineContext : MigrationContext
 	{
-		//private readonly Stage<TPipelineContext> _headStage;
-		private readonly IEnumerable<Stage<TPipelineContext>> _stages;
+		private readonly List<Stage<TPipelineContext>> _stages;
 		protected readonly TPipelineContext _context;
 
 		protected Pipeline(
-			//Stage<TPipelineContext> headStage,
-			IEnumerable<Stage<TPipelineContext>> stages,
+			List<Stage<TPipelineContext>> stages,
 			TPipelineContext context)
 		{
 			_stages = stages;
@@ -27,7 +25,12 @@ namespace R5.DbMigrations.Engine.Processing
 
 			foreach (var s in _stages)
 			{
-				await s.ProcessAsync(_context);
+				NextCommand next = await s.ProcessInternal(_context);
+
+				if (next is NextCommand.End)
+				{
+					break;
+				}
 			}
 
 			if (OnEnd != null) await OnEnd();

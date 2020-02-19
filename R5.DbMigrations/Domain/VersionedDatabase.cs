@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using LanguageExt;
 using static LanguageExt.Prelude;
+using R5.DbMigrations.Engine.Processing;
 
 namespace R5.DbMigrations.Domain
 {
@@ -37,19 +38,21 @@ namespace R5.DbMigrations.Domain
 
 		public bool HasBeenInitialized => CurrentVersion != DbVersion.NewDatabase;
 
-		//public IEnumerable<TMigration> GetRequiredMigrations<TMigration>(IEnumerable<TMigration> existingUpgrades)
-		//	where TMigration : DbMigration
-		//{
-		//	var completedVersions = AppliedMigrations
-		//		.Where(m => m.LatestAttemptResult != MigrationResultType.Error)
-		//		.Select(m => m.DbVersion)
-		//		.ToHashSet();
+		public List<TMigration> GetRequiredMigrations<TMigration, TContext>(IEnumerable<TMigration> existingUpgrades)
+			where TMigration : DbMigration<TContext>
+			where TContext : MigrationContext
+		{
+			var completedVersions = AppliedMigrations
+				.Where(m => m.LatestAttemptResult != MigrationResultType.Error)
+				.Select(m => m.DbVersion)
+				.ToHashSet();
 
-		//	return existingUpgrades
-		//		.Where(u => !completedVersions.Contains(u.Version))
-		//		.OrderBy(u => u.Version)
-		//		.Cast<TMigration>();
-		//}
+			return existingUpgrades
+				.Where(u => !completedVersions.Contains(u.Version))
+				.OrderBy(u => u.Version)
+				.Cast<TMigration>()
+				.ToList();
+		}
 
 		public DbVersion GetLatestCompletedMigrationVersion()
 			=> AppliedMigrations

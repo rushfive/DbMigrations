@@ -10,20 +10,6 @@ namespace R5.DbMigrations.Mongo.Processing
 {
 	public abstract class MongoMigrationStage : Stage<MongoMigrationContext>
 	{
-		protected readonly ILogger _logger;
-		//protected abstract string Description { get; }
-
-		public MongoMigrationStage(
-			MongoMigrationContext context,
-			ILoggerFactory loggerFactory)
-			: base(context)
-		{
-			_logger = loggerFactory?.CreateLogger(nameof(MongoMigrationStage));//
-		}
-
-		protected override Action<MongoMigrationContext> OnStart => context =>
-		{
-			_logger.LogInformation($"[{this.GetType().Name}] {Description}");
-		};
+		
 	}
 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using R5.DbMigrations.Domain.Versioning;
 using R5.DbMigrations.Engine;
 using R5.DbMigrations.Engine.Processing;
+using R5.DbMigrations.Mongo;
 using R5.DbMigrations.Mongo.Migrations;
 using R5.DbMigrations.Mongo.Processing;
 using R5.DbMigrations.Utilities;
@@ -22,9 +23,14 @@ namespace R5.DbMigrations.DevTest
 	{
 		static async Task Main(string[] args)
 		{
+			BsonRegistrations.SetupForMongoMigrations();
+
 			List<MongoMigration> mongoMigrations = ExistingMigrationsFinder
-				.GetMigrationsDerivedFrom<MongoMigration>(Assembly.GetExecutingAssembly())
+				.GetMigrationsDerivedFrom<MongoMigration, MongoMigrationContext>(Assembly.GetExecutingAssembly())
 				.ToList();
+
+			var tester = TestNewMongoStages.Initialize();
+			await tester.ExecuteTestAsync(mongoMigrations);
 
 			//var executingAssembly = Assembly.GetExecutingAssembly();
 			//var callingAssembly = Assembly.GetCallingAssembly();

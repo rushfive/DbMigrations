@@ -8,6 +8,7 @@ namespace R5.DbMigrations.Mongo.Migrations
 {
 	public abstract class MongoMigration : DbMigration<MongoMigrationContext>
 	{
+		public virtual bool CanUseTransaction { get; } = true;
 	}
 
 	public static class MongoMigrationExtensions

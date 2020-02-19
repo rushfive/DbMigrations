@@ -126,14 +126,12 @@ namespace R5.DbMigrations.Mongo.Database
 		}
 
 		public Task CreateCollectionAsync(string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default)
-		{
-			throw new NotImplementedException();
-		}
+			=> _transactionSession
+				.Some(s => _database.CreateCollectionAsync(s, name, options, cancellationToken))
+				.None(() => _database.CreateCollectionAsync(name, options, cancellationToken));
 
 		public Task CreateCollectionAsync(IClientSessionHandle session, string name, CreateCollectionOptions options = null, CancellationToken cancellationToken = default)
-		{
-			throw new NotImplementedException();
-		}
+			=> CreateCollectionAsync(name, options, cancellationToken);
 
 		public void CreateView<TDocument, TResult>(string viewName, string viewOn, PipelineDefinition<TDocument, TResult> pipeline, CreateViewOptions<TDocument> options = null, CancellationToken cancellationToken = default)
 		{

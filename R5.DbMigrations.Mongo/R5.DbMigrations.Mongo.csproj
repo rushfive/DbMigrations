@@ -10,6 +10,7 @@
   </ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Ben.Demystifier" Version="0.1.6" />
 		<PackageReference Include="MongoDB.Driver" Version="2.10.1" />
 		<PackageReference Include="MongoDB.Driver.GridFS" Version="2.10.1" />
 	</ItemGroup>

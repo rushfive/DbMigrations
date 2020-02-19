@@ -44,7 +44,14 @@ namespace R5.DbMigrations.Domain.Migrations
 			public DateTime Start { get; set; }
 			public double ElapsedTimeSeconds { get; set; }
 			public MigrationResultType Result { get; set; }
-			public object AdditionalContext { get; set; }
+			public ErrorContext Error { get; set; }
+		}
+
+		public class ErrorContext
+		{
+			public string ExceptionMessage { get; set; }
+			public Exception Exception { get; set; }
+			public string Stacktrace { get; set; } // todo demystify
 		}
 
 		public int CompareTo([AllowNull] MigrationLog other)
