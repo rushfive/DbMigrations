@@ -23,12 +23,6 @@ namespace R5.DbMigrations.Mongo
 				cm.MapIdProperty(l => l.SemVer).SetSerializer(new SemanticVersionSerializer());
 				cm.MapProperty(l => l.Version).SetSerializer(new YearQuarterVersionSerializer());
 			});
-			
-			//BsonClassMap.RegisterClassMap<ApplyAttempt>(cm =>
-			//{
-			//	cm.
-			//	cm.MapProperty(l => l.AdditionalContext).SetSerializer(new BsonDocumentSerializer());///////////
-			//});
 		}
 	}
 }

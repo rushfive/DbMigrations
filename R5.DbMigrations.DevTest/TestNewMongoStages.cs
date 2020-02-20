@@ -69,7 +69,7 @@ namespace R5.DbMigrations.DevTest
 			VersionedDatabase versionedDb = await GetTestVersionedDb();
 
 			List<MongoMigration> requiredMigrations = versionedDb.GetRequiredMigrations<MongoMigration, MongoMigrationContext>(mongoMigrations);
-			requiredMigrations = mongoMigrations.Skip(1).ToList();//
+			//requiredMigrations = mongoMigrations.Skip(1).ToList();//
 			var context = MongoMigrationContext.Initialize(_options, versionedDb);
 			List<MongoMigrationStage> stages = GetStages(requiredMigrations);
 
@@ -147,6 +147,92 @@ namespace R5.DbMigrations.DevTest
 					{ "_id", Guid.NewGuid().ToString() },
 					{ "StringValue", "String value 2" },
 					{ "IntValue", 43210 }
+				}
+			});
+		}
+	}
+
+	public class MigrationTest_3 : MongoMigration
+	{
+		public override DbVersion Version => new DbVersion("2020.1.1", "1.0.1");
+		public override string Description => "2nd migration";
+
+		public override async Task ApplyAsync(MongoMigrationContext context)
+		{
+			var c1 = context.DbContext.GetCollection<BsonDocument>("TestCollection_2");
+
+			await c1.InsertManyAsync(new List<BsonDocument>
+			{
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "String value 1" },
+					{ "IntValue", 55 }
+				},
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "String value 2" },
+					{ "IntValue", 43210 }
+				}
+			});
+
+			await c1.InsertManyAsync(new List<BsonDocument>
+			{
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "String value 3" },
+					{ "IntValue", 333333333 }
+				},
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "String value 4" },
+					{ "IntValue", 4444444444 }
+				}
+			});
+		}
+	}
+
+	public class MigrationTest_4 : MongoMigration
+	{
+		public override DbVersion Version => new DbVersion("2020.1.2", "1.0.2");
+		public override string Description => "3rd migration";
+
+		public override async Task ApplyAsync(MongoMigrationContext context)
+		{
+			var c1 = context.DbContext.GetCollection<BsonDocument>("TestCollection_3");
+
+			await c1.InsertManyAsync(new List<BsonDocument>
+			{
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "String value 1" },
+					{ "IntValue", 55 }
+				},
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "String value 2" },
+					{ "IntValue", 43210 }
+				}
+			});
+			//throw new InvalidOperationException("FAILING migration 4!!!");
+			await c1.InsertManyAsync(new List<BsonDocument>
+			{
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "String value 3" },
+					{ "IntValue", 333333333 }
+				},
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "String value 4" },
+					{ "IntValue", 4444444444 }
 				}
 			});
 		}

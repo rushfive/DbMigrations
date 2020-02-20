@@ -32,7 +32,14 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			bool useTransaction = context.Options.UseTransaction;
 			bool retryWithoutTransaction = context.Options.RetryWithoutTransactionOnFail;
 
-			MigrationLog.ApplyAttempt attempt = await RunMigrationAsync(context, useTransaction && _migration.CanUseTransaction);
+			AdaptiveMongoDbContext dbContext = GetMongoDbContext(
+				context.Database.ConnectionString,
+				useTransaction);
+
+			MigrationLog.ApplyAttempt attempt = await RunMigrationAsync(
+				context, 
+				dbContext,
+				useTransaction && _migration.CanUseTransaction);
 
 			// initial failed attempt used transaction, and processing is set to retry
 			bool shouldRetry = attempt.Result == MigrationResultType.Error
@@ -43,7 +50,11 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			if (shouldRetry)
 			{
 				_logger.LogWarning("Initial migration attempt failed. Retrying without transaction.");
-				attempt = await RunMigrationAsync(context, useTransaction: false);
+				dbContext = GetMongoDbContext(
+					context.Database.ConnectionString,
+					useTransaction);
+
+				attempt = await RunMigrationAsync(context, dbContext, useTransaction: false);
 			}
 
 			_logger.LogInformation($"Saving attempt log to database record.");
@@ -56,19 +67,25 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 					return NextCommand.Ends;
 				case MigrationResultType.Completed:
 					_logger.LogInformation($"Migration ''{_migration.Version}' completed after {attempt.ElapsedTimeSeconds} seconds.");
+
+					await dbContext.CommitTransactionAsync();
 					return NextCommand.Continues;
 				default:
 					throw new InvalidOperationException($"'{attempt.Result}' is an unknown migration result type.");
 			}
 		}
 
-		private async Task<MigrationLog.ApplyAttempt> RunMigrationAsync(MongoMigrationContext context, bool useTransaction)
+		private async Task<MigrationLog.ApplyAttempt> RunMigrationAsync(MongoMigrationContext context,
+			AdaptiveMongoDbContext dbContext , bool useTransaction)
 		{
-			AdaptiveMongoDbContext dbContext = GetMongoDbContext(context.Database.ConnectionString, useTransaction);
+			//AdaptiveMongoDbContext dbContext = GetMongoDbContext(
+			//	context.Database.ConnectionString, 
+			//	useTransaction);
+
 			var sw = new Stopwatch();
 			var startTime = DateTime.UtcNow;
 			MigrationResultType? result = null;
-			object additionalContext = null;
+			MigrationLog.ErrorContext errorContext = null;
 
 			try
 			{
@@ -81,23 +98,9 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 
 				await _migration.ApplyAsync(migrationContext);
 
-				await dbContext.CommitTransactionAsync();
+//				await dbContext.CommitTransactionAsync();
 				result = MigrationResultType.Completed;
 			}
-			//catch (MongoCommandException ex)
-			//{
-
-			//}
-			//catch (MongoServerException ex)
-			//{
-			//	var cn = ex.ConnectionId;
-			//	var server = ex.ConnectionId.ServerId;
-			//	var endpoint = ex.ConnectionId.ServerId.EndPoint;
-			//}
-			//catch (MongoException ex)
-			//{
-
-			//}
 			catch (Exception ex)
 			{
 				_logger.LogWarning(ex, "Migration failed.");
@@ -105,12 +108,7 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 				await dbContext.AbortTransactionAsync();
 				
 				result = MigrationResultType.Error;
-				additionalContext = new
-				{
-					Exception = ex,
-					Message = ex.Message,
-					StackTrace = ex.ToString()
-				};
+				errorContext = CreateErrorContext(ex);
 			}
 			finally
 			{
@@ -122,7 +120,7 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 				Start = startTime,
 				ElapsedTimeSeconds = sw.Elapsed.TotalSeconds,
 				Result = result.Value,
-				AdditionalContext = additionalContext
+				Error = errorContext
 			};
 		}
 
@@ -134,39 +132,49 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			switch (exception)
 			{
 				// connection
-				case MongoAuthenticationException _:
-				case MongoConnectionClosedException _:
-				case MongoConnectionException _:
-					message = exception.Message;
-					break;
-				// query
-				//case MongoCursorNotFoundException _:
-				case MongoQueryException ex:
-					message = $"Error executing query: {ex.Query}";
-					break;
-				// cmd
-				case MongoDuplicateKeyException ex:
-				case MongoWriteConcernException ex:
-				case MongoNodeIsRecoveringException ex:
-				case MongoNotPrimaryException ex:
-				case MongoCommandException ex:
+				//case MongoAuthenticationException _:
+				//case MongoConnectionClosedException _:
+				//case MongoConnectionException _:
+				//	message = exception.Message;
+				//	break;
+				//// query
+				////case MongoCursorNotFoundException _:
+				//case MongoQueryException ex:
+				//	message = $"Error executing query: {ex.Query}";
+				//	break;
+				//// cmd
+				//case MongoDuplicateKeyException ex:
+				//case MongoWriteConcernException ex:
+				//case MongoNodeIsRecoveringException ex:
+				//case MongoNotPrimaryException ex:
+				//case MongoCommandException ex:
 
-				//client
-				case MongoWaitQueueFullException ex:
-				case MongoConfigurationException ex:
-				case MongoClientException ex:
-				//svr
-				case MongoBulkWriteException ex:
-				case MongoWriteException ex:
-				case MongoExecutionTimeoutException ex:
-				case MongoServerException ex:
-				// internal - bug
-				case MongoInternalException ex:
+				////client
+				//case MongoWaitQueueFullException ex:
+				//case MongoConfigurationException ex:
+				//case MongoClientException ex:
+				////svr
+				//case MongoBulkWriteException ex:
+				//case MongoWriteException ex:
+				//case MongoExecutionTimeoutException ex:
+				//case MongoServerException ex:
+				//// internal - bug
+				//case MongoInternalException ex:
 				// catch all for mongo ex
 				case MongoException ex:
+					message = $"MongoException: {ex.Message}";
 					break;
-					
+				default:
+					message = exception.Message;
+					break;
 			}
+
+			return new MigrationLog.ErrorContext
+			{
+				ExceptionMessage = message,
+				Exception = exception,
+				Stacktrace = stackTrace
+			};
 		}
 
 		private AdaptiveMongoDbContext GetMongoDbContext(string connectionString, bool useTransaction)
