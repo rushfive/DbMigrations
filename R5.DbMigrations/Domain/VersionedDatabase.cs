@@ -3,9 +3,7 @@ using R5.DbMigrations.Domain.Versioning;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using LanguageExt;
-using static LanguageExt.Prelude;
 using R5.DbMigrations.Engine.Processing;
 
 namespace R5.DbMigrations.Domain
@@ -60,37 +58,5 @@ namespace R5.DbMigrations.Domain
 				.Select(m => m.DbVersion)
 				.OrderByDescending(v => v)
 				.FirstOrDefault();
-
-		//public MigrationLog.ApplyAttempt LatestAttempt =>
-		//	AppliedMigrations.SelectMany(m => m.History)
-		//		.OrderByDescending(a => a.Start)
-		//		.FirstOrDefault();
-
-		// replaced with db.AddMigrationLog()
-		//public void UpdateWithAppliedMigration(
-		//	MongoMigration migration, MigrationLog.ApplyAttempt attempt)
-		//{
-		//	var log = AppliedMigrations.SingleOrDefault(m => m.DbVersion == migration.Version);
-		//	if (log != null)
-		//	{
-		//		log.History.Add(attempt);
-		//	}
-		//	else
-		//	{
-		//		var newLog = MigrationLog.CreateFrom(migration, attempt);
-		//		AppliedMigrations.Add(newLog);
-		//	}
-		//}
-
-		//public Option<MigrationLog.ApplyAttempt> LatestAttemptFor(DbVersion version)
-		//{
-		//	MigrationLog.ApplyAttempt attempt = AppliedMigrations.SingleOrDefault(m => m.DbVersion == version)?
-		//		.History
-		//		.OrderByDescending(a => a.Start)
-		//		.FirstOrDefault();
-		//	return attempt;
-		//}
 	}
-
-	
 }

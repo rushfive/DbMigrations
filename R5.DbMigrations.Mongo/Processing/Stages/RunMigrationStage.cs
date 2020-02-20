@@ -29,22 +29,17 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 		{
 			_logger.LogInformation($"Begin running mongo migration '{_migration.Version}'");
 
-			bool useTransaction = context.Options.UseTransaction;
-			bool retryWithoutTransaction = context.Options.RetryWithoutTransactionOnFail;
-
 			AdaptiveMongoDbContext dbContext = GetMongoDbContext(
 				context.Database.ConnectionString,
-				useTransaction);
+				context.Options.UseTransaction && _migration.CanUseTransaction);
 
 			MigrationLog.ApplyAttempt attempt = await RunMigrationAsync(
-				context, 
-				dbContext,
-				useTransaction && _migration.CanUseTransaction);
+				context,
+				dbContext);
 
 			// initial failed attempt used transaction, and processing is set to retry
 			bool shouldRetry = attempt.Result == MigrationResultType.Error
-				&& useTransaction
-				&& retryWithoutTransaction
+				&& context.Options.ShouldRetryWithoutTransaction
 				&& _migration.CanUseTransaction;
 
 			if (shouldRetry)
@@ -52,13 +47,13 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 				_logger.LogWarning("Initial migration attempt failed. Retrying without transaction.");
 				dbContext = GetMongoDbContext(
 					context.Database.ConnectionString,
-					useTransaction);
+					false);
 
-				attempt = await RunMigrationAsync(context, dbContext, useTransaction: false);
+				attempt = await RunMigrationAsync(context, dbContext);
 			}
 
 			_logger.LogInformation($"Saving attempt log to database record.");
-			await SaveMigrationAttemptAsync(context, attempt, _migration);
+			await SaveMigrationAttemptAsync(context, dbContext, attempt, _migration);
 
 			switch (attempt.Result)
 			{
@@ -75,13 +70,10 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			}
 		}
 
-		private async Task<MigrationLog.ApplyAttempt> RunMigrationAsync(MongoMigrationContext context,
-			AdaptiveMongoDbContext dbContext , bool useTransaction)
+		private async Task<MigrationLog.ApplyAttempt> RunMigrationAsync(
+			MongoMigrationContext context,
+			AdaptiveMongoDbContext dbContext)
 		{
-			//AdaptiveMongoDbContext dbContext = GetMongoDbContext(
-			//	context.Database.ConnectionString, 
-			//	useTransaction);
-
 			var sw = new Stopwatch();
 			var startTime = DateTime.UtcNow;
 			MigrationResultType? result = null;
@@ -98,7 +90,6 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 
 				await _migration.ApplyAsync(migrationContext);
 
-//				await dbContext.CommitTransactionAsync();
 				result = MigrationResultType.Completed;
 			}
 			catch (Exception ex)
@@ -195,12 +186,11 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 		}
 
 		private async Task SaveMigrationAttemptAsync(
-			MongoMigrationContext context, 
+			MongoMigrationContext context,
+			AdaptiveMongoDbContext dbContext,
 			MigrationLog.ApplyAttempt attempt, 
 			MongoMigration migration)
 		{
-			AdaptiveMongoDbContext dbContext = GetMongoDbContext(context.Database.ConnectionString, useTransaction: false);
-
 			var filter = MongoFilters.MigrationLog.SingleMatchingVersion(migration.Version);
 			var collection = dbContext.GetCollection<MigrationLog>(MigrationLog.CollectionName);
 
@@ -215,11 +205,6 @@ namespace R5.DbMigrations.Mongo.Processing.Stages
 			else
 			{
 				log = migration.CreateLogFor(attempt);
-				//log = new MigrationLog(
-				//	migration.Version.Version,
-				//	migration.Version.YearQuarter,
-				//	migration.Description,
-				//	new List<MigrationLog.ApplyAttempt> { attempt });
 				await collection.InsertOneAsync(log);
 			}
 		}

@@ -24,8 +24,7 @@ namespace R5.DbMigrations.DevTest
 	{
 		private readonly MongoMigrationOptions _options = new MongoMigrationOptions
 		{
-			UseTransaction = true,
-			RetryWithoutTransactionOnFail = true
+			TransactionOption = MongoTransactionOption.UseAndRetryWithoutTransactionOnFail
 		};
 
 		private readonly Microsoft.Extensions.Logging.ILogger _logger;
@@ -69,7 +68,7 @@ namespace R5.DbMigrations.DevTest
 			VersionedDatabase versionedDb = await GetTestVersionedDb();
 
 			List<MongoMigration> requiredMigrations = versionedDb.GetRequiredMigrations<MongoMigration, MongoMigrationContext>(mongoMigrations);
-			//requiredMigrations = mongoMigrations.Skip(1).ToList();//
+
 			var context = MongoMigrationContext.Initialize(_options, versionedDb);
 			List<MongoMigrationStage> stages = GetStages(requiredMigrations);
 
@@ -86,10 +85,7 @@ namespace R5.DbMigrations.DevTest
 		{
 			string connectionStr = "mongodb://mongo1:9560,mongo2:9561/DbUpgradeEval?replicaSet=dockerdev";
 			var db = GetMongoDatabase(connectionStr);
-			//var fo = new FindOptions<MigrationLog>
-			//{
-			//	Projection = Builders<MigrationLog>.Projection.Exclude(l => l.H)
-			//}
+
 			var migrationsCursor = await db.GetCollection<MigrationLog>(MigrationLog.CollectionName)
 				.FindAsync(FilterDefinition<MigrationLog>.Empty);
 			var migrations = await migrationsCursor.ToListAsync();
@@ -234,6 +230,92 @@ namespace R5.DbMigrations.DevTest
 					{ "StringValue", "String value 4" },
 					{ "IntValue", 4444444444 }
 				}
+			});
+		}
+	}
+
+	public class MigrationTest_5 : MongoMigration
+	{
+		public override DbVersion Version => new DbVersion("2020.1.3", "1.0.3");
+		public override string Description => "FIFTH migration";
+
+		public override async Task ApplyAsync(MongoMigrationContext context)
+		{
+			var c1 = context.DbContext.GetCollection<BsonDocument>("TestCollection_3");
+
+			await c1.InsertManyAsync(new List<BsonDocument>
+			{
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "********************" },
+					{ "IntValue", 99999999 }
+				},
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "********************" },
+					{ "IntValue", 99999999 }
+				},
+			});
+
+			await c1.InsertManyAsync(new List<BsonDocument>
+			{
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "********************" },
+					{ "IntValue", 99999999 }
+				},
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "********************" },
+					{ "IntValue", 99999999 }
+				},
+			});
+		}
+	}
+
+	public class MigrationTest_6 : MongoMigration
+	{
+		public override DbVersion Version => new DbVersion("2020.1.4", "1.0.4");
+		public override string Description => "SIXTH migration";
+
+		public override async Task ApplyAsync(MongoMigrationContext context)
+		{
+			var c1 = context.DbContext.GetCollection<BsonDocument>("TestCollection_3");
+
+			await c1.InsertManyAsync(new List<BsonDocument>
+			{
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "********************" },
+					{ "IntValue", 99999999 }
+				},
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "********************" },
+					{ "IntValue", 99999999 }
+				},
+			});
+
+			await c1.InsertManyAsync(new List<BsonDocument>
+			{
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "********************" },
+					{ "IntValue", 99999999 }
+				},
+				new BsonDocument
+				{
+					{ "_id", Guid.NewGuid().ToString() },
+					{ "StringValue", "********************" },
+					{ "IntValue", 99999999 }
+				},
 			});
 		}
 	}

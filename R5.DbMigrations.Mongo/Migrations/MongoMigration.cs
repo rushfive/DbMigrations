@@ -1,8 +1,5 @@
 ﻿using R5.DbMigrations.Domain.Migrations;
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 namespace R5.DbMigrations.Mongo.Migrations
 {

@@ -14,11 +14,6 @@ namespace R5.DbMigrations.Domain.Versioning
 
 		public YearQuarterVersion(int year, int quarter, int version)
 		{
-			//if (year < 0) throw new ArgumentOutOfRangeException(nameof(year), "Year cannot be less than 0.");
-			//if (year < 2020 || year > 9999) throw new ArgumentOutOfRangeException(nameof(year), "Year must be a a valid 4 digit int greater than 2019.");
-			//if (quarter < 1 || quarter > 4) throw new ArgumentOutOfRangeException(nameof(quarter), "Quarter can only have these values: 1,2,3,4");
-			//if (version < 0) throw new ArgumentOutOfRangeException(nameof(version), "Version cannot be less than 0.");
-
 			Year = year;
 			Quarter = quarter;
 			Version = version;

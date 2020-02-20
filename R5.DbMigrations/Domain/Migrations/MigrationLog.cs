@@ -32,7 +32,6 @@ namespace R5.DbMigrations.Domain.Migrations
 				?? throw new ArgumentNullException(nameof(history));
 		}
 
-		// enforce this record not created unless attempt persisted?
 		public MigrationResultType LatestAttemptResult =>
 			History.OrderByDescending(a => a.Start)
 				.First().Result;
@@ -51,7 +50,7 @@ namespace R5.DbMigrations.Domain.Migrations
 		{
 			public string ExceptionMessage { get; set; }
 			public Exception Exception { get; set; }
-			public string Stacktrace { get; set; } // todo demystify
+			public string Stacktrace { get; set; }
 		}
 
 		public int CompareTo([AllowNull] MigrationLog other)

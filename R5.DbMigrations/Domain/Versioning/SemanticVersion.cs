@@ -14,10 +14,6 @@ namespace R5.DbMigrations.Domain.Versioning
 
 		public SemanticVersion(int major, int minor, int patch)
 		{
-			//if (major < 0) throw new ArgumentOutOfRangeException(nameof(major), "Major cannot be less than 0.");
-			//if (minor < 0) throw new ArgumentOutOfRangeException(nameof(minor), "Minor cannot be less than 0.");
-			//if (patch < 0) throw new ArgumentOutOfRangeException(nameof(patch), "Patch cannot be less than 0.");
-
 			Major = major;
 			Minor = minor;
 			Patch = patch;
